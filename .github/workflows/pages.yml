@@ -25,7 +25,6 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
-          cache: pnpm
       - run: corepack enable
       - run: corepack pnpm install --frozen-lockfile
       - run: corepack pnpm --filter @vp-tw/ptt-link-switcher-web build
