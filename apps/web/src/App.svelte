@@ -21,6 +21,8 @@
   import ProviderMark from './ProviderMark.svelte'
   import { preferences, savePreferences, type Preferences } from './preferences.js'
 
+  type ProviderDndLink = ProviderLink<ProviderId> & { isDndShadowItem?: boolean }
+
   const providerById = new Map(providers.map((provider) => [provider.id, provider]))
 
   let input = $state('')
@@ -32,7 +34,7 @@
   let preferenceState = $state<Preferences>(preferences.get())
   let isMounted = $state(false)
   let isParsing = $state(false)
-  let dndLinks = $state<ProviderLink<ProviderId>[] | null>(null)
+  let dndLinks = $state<ProviderDndLink[] | null>(null)
 
   const flipDurationMs = 180
 
@@ -68,7 +70,7 @@
     })
     if (dndLinks === null) return linksInSavedOrder
     const currentIds = new Set(linksInSavedOrder.map((link) => link.id))
-    return dndLinks.filter((link) => currentIds.has(link.id))
+    return dndLinks.filter((link) => currentIds.has(link.id) || link.isDndShadowItem)
   })
   const defaultLink = $derived(
     providerLinks.find((link) => link.id === preferenceState.defaultProvider) ?? null,
@@ -221,11 +223,11 @@
   }
 
   function previewProviderOrder(event: CustomEvent<DndEvent>): void {
-    dndLinks = event.detail.items as ProviderLink<ProviderId>[]
+    dndLinks = event.detail.items as ProviderDndLink[]
   }
 
   function saveProviderOrder(event: CustomEvent<DndEvent>): void {
-    const links = event.detail.items as ProviderLink<ProviderId>[]
+    const links = event.detail.items as ProviderDndLink[]
     dndLinks = links
     savePreferences({
       ...preferenceState,

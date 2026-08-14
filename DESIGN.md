@@ -56,7 +56,7 @@ Paper surfaces use the bundled `/paper-texture.webp`. Provider marks and routing
 
 ## Motion
 
-Successful parsing stamps the canonical route and dispatches provider tickets in order. The route stamp uses a short scale-and-blur entrance; tickets use a clipped vertical reveal with a small stagger. Hover motion is directional and brief.
+Successful parsing stamps the canonical route. The route stamp uses a short scale-and-blur entrance. Reader tickets reserve transform for drag-and-drop positioning: the lifted ticket follows the pointer, the open position remains visible, and surrounding tickets move with a short FLIP transition.
 
 Under `prefers-reduced-motion: reduce`, remove meaningful duration and delay while keeping the final parsed state visible.
 
