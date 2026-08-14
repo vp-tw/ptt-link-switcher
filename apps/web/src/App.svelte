@@ -9,6 +9,7 @@
     type ProviderId,
     type ProviderLink,
   } from '@vp-tw/ptt-link-switcher'
+  import { flip } from 'svelte/animate'
   import { onMount } from 'svelte'
 
   import ProviderMark from './ProviderMark.svelte'
@@ -23,6 +24,9 @@
   let copyFailedProvider = $state<ProviderId | null>(null)
   let copyFeedback = $state('')
   let preferenceState = $state<Preferences>(preferences.get())
+  let isMounted = $state(false)
+  let isParsing = $state(false)
+  let draggedProvider = $state<ProviderId | null>(null)
 
   const article = $derived(result?.ok === true ? result.article : null)
   const missingBoard = $derived(
@@ -35,24 +39,41 @@
     const visibleOrder = preferenceState.providerOrder.filter(
       (id) => !preferenceState.hiddenProviders.includes(id),
     )
-    const defaultFirst = visibleOrder.includes(preferenceState.defaultProvider)
-      ? [
-          preferenceState.defaultProvider,
-          ...visibleOrder.filter((id) => id !== preferenceState.defaultProvider),
-        ]
-      : visibleOrder
-    return defaultFirst.flatMap((id) => {
+    return visibleOrder.flatMap((id) => {
       const link = linkById.get(id)
       return link === undefined ? [] : [link]
     })
+  })
+  const defaultLink = $derived(
+    providerLinks.find((link) => link.id === preferenceState.defaultProvider) ?? null,
+  )
+
+  $effect(() => {
+    const pendingInput = input
+    const pendingBoard = board
+    if (!isMounted) return
+
+    if (pendingInput.trim().length === 0) {
+      result = null
+      isParsing = false
+      syncQuery()
+      return
+    }
+
+    isParsing = true
+    const timeout = window.setTimeout(() => {
+      parse(pendingInput, pendingBoard)
+      isParsing = false
+    }, 180)
+    return () => window.clearTimeout(timeout)
   })
 
   onMount(() => {
     const queryInput = new URLSearchParams(window.location.search).get('input')
     if (queryInput !== null) {
       input = queryInput
-      parse()
     }
+    isMounted = true
     return preferences.subscribe((next) => {
       preferenceState = next
     })
@@ -80,8 +101,11 @@
     history.replaceState(null, '', url)
   }
 
-  function parse(): void {
-    result = parsePttInput(input, board.trim() ? { board } : {})
+  function parse(pendingInput = input, pendingBoard = board): void {
+    result = parsePttInput(
+      pendingInput,
+      pendingBoard.trim() ? { board: pendingBoard } : {},
+    )
     copiedProvider = null
     copyFailedProvider = null
     copyFeedback = ''
@@ -91,7 +115,6 @@
   function useExample(): void {
     input = 'https://www.ptt.cc/bbs/Browsers/M.1750772319.A.F2C.html'
     board = ''
-    parse()
   }
 
   async function copyLink(link: ProviderLink<ProviderId>): Promise<void> {
@@ -143,11 +166,52 @@
     ]
     savePreferences({ ...preferenceState, providerOrder })
   }
+
+  function moveVisibleProvider(id: ProviderId, offset: -1 | 1): void {
+    const visibleOrder = preferenceState.providerOrder.filter(
+      (providerId) => !preferenceState.hiddenProviders.includes(providerId),
+    )
+    const currentIndex = visibleOrder.indexOf(id)
+    const adjacentId = visibleOrder[currentIndex + offset]
+    if (adjacentId === undefined) return
+
+    const providerOrder = [...preferenceState.providerOrder]
+    const adjacentIndex = providerOrder.indexOf(adjacentId)
+    const fullIndex = providerOrder.indexOf(id)
+    ;[providerOrder[fullIndex], providerOrder[adjacentIndex]] = [
+      providerOrder[adjacentIndex]!,
+      providerOrder[fullIndex]!,
+    ]
+    savePreferences({ ...preferenceState, providerOrder })
+  }
+
+  function startDragging(id: ProviderId): void {
+    draggedProvider = id
+  }
+
+  function moveDraggedProvider(targetId: ProviderId): void {
+    const sourceId = draggedProvider
+    if (sourceId === null || sourceId === targetId) return
+
+    const providerOrder = [...preferenceState.providerOrder]
+    const sourceIndex = providerOrder.indexOf(sourceId)
+    const targetIndex = providerOrder.indexOf(targetId)
+    if (sourceIndex < 0 || targetIndex < 0) return
+    providerOrder.splice(sourceIndex, 1)
+    providerOrder.splice(targetIndex, 0, sourceId)
+    savePreferences({ ...preferenceState, providerOrder })
+  }
+
+  function finishDragging(): void {
+    draggedProvider = null
+  }
 </script>
 
 <svelte:head>
   <link rel="canonical" href="https://vp-tw.github.io/ptt-link-switcher/" />
 </svelte:head>
+
+<svelte:window onmouseup={finishDragging} onpointerup={finishDragging} />
 
 <header class="site-header">
   <a class="brand" href="./" aria-label="PTT Link Switcher 首頁">
@@ -173,7 +237,7 @@
       <h2 id="manifest-title">文章轉乘單</h2>
       <span>ROUTE / 001</span>
     </div>
-    <form onsubmit={(event) => { event.preventDefault(); parse() }}>
+    <div class="converter-fields">
       <label for="ptt-input">文章網址、分享文字或完整 AID</label>
       <div class="input-row">
         <textarea
@@ -183,12 +247,27 @@
           rows="3"
           spellcheck="false"
         ></textarea>
-        <button class="dispatch-button" type="submit">
-          <span>解析並轉乘</span>
-          <svg aria-hidden="true" viewBox="0 0 24 24">
-            <path d="M5 12h13m-5-5 5 5-5 5" />
-          </svg>
-        </button>
+        <div class:parsing={isParsing} class="conversion-status" role="status" aria-live="polite">
+          {#if isParsing}
+            <span>正在更新</span>
+            <strong>辨識路線中</strong>
+          {:else if article !== null}
+            <span>ROUTE READY</span>
+            <strong>網址已轉換</strong>
+            {#if defaultLink}
+              <a href={defaultLink.url} target="_blank" rel="noreferrer">開啟預設站</a>
+            {/if}
+          {:else if missingBoard}
+            <span>BOARD NEEDED</span>
+            <strong>需要看板名稱</strong>
+          {:else if result?.ok === false}
+            <span>CHECK INPUT</span>
+            <strong>尚未辨識</strong>
+          {:else}
+            <span>LIVE CONVERSION</span>
+            <strong>輸入即時更新</strong>
+          {/if}
+        </div>
       </div>
       <div class="input-meta">
         <button class="text-button" type="button" onclick={useExample}>填入範例</button>
@@ -205,10 +284,10 @@
             autocomplete="off"
             spellcheck="false"
           />
-          <button type="submit">補上看板並轉換</button>
+          <span>輸入後會自動接續轉換</span>
         </div>
       {/if}
-    </form>
+    </div>
   </section>
 
   {#if result?.ok === false}
@@ -236,7 +315,7 @@
       <div class="section-heading">
         <div>
           <h2 id="providers-title">選擇閱讀站</h2>
-          <p>所有可用路線一次攤開；預設站會排在最前。</p>
+          <p>所有可用路線一次攤開；拖曳票券即可調整順序。</p>
         </div>
         <details class="settings">
           <summary>排列與顯示設定</summary>
@@ -293,7 +372,14 @@
 
       <div class="provider-grid">
         {#each providerLinks as link, index (link.id)}
-          <article class="provider-ticket" style={`--dispatch-index: ${index}`}>
+          <article
+            animate:flip={{ duration: 180 }}
+            class:dragging={draggedProvider === link.id}
+            class="provider-ticket"
+            style={`--dispatch-index: ${index}`}
+            onmouseenter={() => moveDraggedProvider(link.id)}
+            onpointerenter={() => moveDraggedProvider(link.id)}
+          >
             <div class="ticket-head">
               <ProviderMark id={link.id} />
               <div>
@@ -303,6 +389,16 @@
               {#if link.id === preferenceState.defaultProvider}
                 <span class="default-tag">預設</span>
               {/if}
+              <span
+                aria-hidden="true"
+                class="drag-handle"
+                onmousedown={() => startDragging(link.id)}
+                onpointerdown={() => startDragging(link.id)}
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M8 7h.01M16 7h.01M8 12h.01M16 12h.01M8 17h.01M16 17h.01" />
+                </svg>
+              </span>
             </div>
             <p class="provider-url">{link.url}</p>
             <div class="ticket-actions">
@@ -318,6 +414,18 @@
                 <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7m-8 0h8v8" /></svg>
               </a>
             </div>
+            <div class="mobile-order" aria-label={`${link.label} 排序控制`}>
+              <button
+                type="button"
+                disabled={index === 0}
+                onclick={() => moveVisibleProvider(link.id, -1)}
+              >往前移</button>
+              <button
+                type="button"
+                disabled={index === providerLinks.length - 1}
+                onclick={() => moveVisibleProvider(link.id, 1)}
+              >往後移</button>
+            </div>
           </article>
         {/each}
       </div>
@@ -332,7 +440,10 @@
 </main>
 
 <footer>
-  <p>Offline by design. No metadata lookup, no network conversion.</p>
+  <p>
+    Offline by design ·
+    <a href="https://github.com/vp-tw/ptt-link-switcher/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT License</a>
+  </p>
   <a href="https://github.com/vp-tw/ptt-link-switcher" target="_blank" rel="noreferrer">
     GitHub · vp-tw/ptt-link-switcher
     <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7m-8 0h8v8" /></svg>

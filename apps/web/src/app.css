@@ -194,7 +194,7 @@ main {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
 }
-.manifest form {
+.converter-fields {
   margin-top: 20px;
 }
 .manifest label {
@@ -206,7 +206,7 @@ main {
 }
 .input-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) 230px;
   border: 2px solid var(--ink);
 }
 textarea {
@@ -232,28 +232,39 @@ textarea:focus {
   outline: 0;
   box-shadow: inset 0 0 0 3px var(--acid);
 }
-.dispatch-button {
+.conversion-status {
   display: flex;
   min-width: 230px;
+  min-height: 108px;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  justify-content: center;
+  gap: 4px;
   padding: 18px 20px;
   color: var(--navy);
   background: var(--acid);
-  border: 0;
   border-left: 2px solid var(--ink);
+  text-align: center;
+}
+.conversion-status > span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+}
+.conversion-status strong {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.conversion-status a {
+  margin-top: 8px;
+  color: var(--navy);
+  font-size: 0.75rem;
   font-weight: 800;
+  text-underline-offset: 3px;
 }
-.dispatch-button:hover {
-  background: #e4ff72;
-}
-.dispatch-button svg {
-  width: 25px;
-  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-.dispatch-button:hover svg {
-  transform: translateX(4px);
+.conversion-status.parsing {
+  background: var(--paper-deep);
 }
 .input-meta {
   display: flex;
@@ -295,13 +306,10 @@ textarea:focus {
   border-radius: 0;
   font-family: "IBM Plex Mono", monospace;
 }
-.board-field button {
-  min-height: 48px;
-  padding: 10px 16px;
-  color: var(--paper);
-  background: var(--navy);
-  border: 2px solid var(--navy);
-  font-weight: 700;
+.board-field > span {
+  align-self: center;
+  color: var(--muted-navy);
+  font-size: 0.76rem;
 }
 
 .error-strip {
@@ -476,10 +484,17 @@ textarea:focus {
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
   animation: dispatch 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: calc(var(--dispatch-index) * 55ms);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 180ms ease;
+}
+.provider-ticket.dragging {
+  opacity: 0.45;
+  transform: scale(0.985);
 }
 .ticket-head {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   gap: 12px;
   align-items: center;
   padding-bottom: 17px;
@@ -503,6 +518,26 @@ textarea:focus {
   background: var(--acid);
   font-size: 0.68rem;
   font-weight: 800;
+}
+.drag-handle {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  border: 1px dashed var(--ink);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+.drag-handle svg {
+  width: 23px;
+  stroke-width: 4;
 }
 .provider-url {
   min-height: 72px;
@@ -551,6 +586,9 @@ textarea:focus {
 .ticket-actions svg {
   width: 17px;
 }
+.mobile-order {
+  display: none;
+}
 
 .copy-status {
   position: absolute;
@@ -595,7 +633,7 @@ footer {
 footer p {
   margin: 0;
 }
-footer a {
+footer > a {
   display: flex;
   min-height: 44px;
   gap: 7px;
@@ -604,7 +642,11 @@ footer a {
   text-decoration-thickness: 1px;
   text-underline-offset: 4px;
 }
-footer svg {
+footer p a {
+  color: var(--paper);
+  text-underline-offset: 3px;
+}
+footer > a svg {
   width: 16px;
 }
 
@@ -676,11 +718,13 @@ footer svg {
   textarea {
     min-height: 130px;
   }
-  .dispatch-button {
+  .conversion-status {
     min-width: 0;
     min-height: 56px;
+    align-items: flex-start;
     border-top: 2px solid var(--ink);
     border-left: 0;
+    text-align: left;
   }
   .input-meta {
     align-items: flex-start;
@@ -710,9 +754,11 @@ footer svg {
     padding: 42px 0 52px;
   }
   .section-heading {
+    flex-direction: column;
     align-items: flex-start;
   }
   .settings {
+    align-self: flex-end;
     padding-top: 7px;
   }
   .settings-sheet {
@@ -731,6 +777,32 @@ footer svg {
   }
   .provider-ticket {
     min-height: 250px;
+  }
+  .drag-handle {
+    display: none;
+  }
+  .ticket-head {
+    grid-template-columns: auto 1fr auto;
+  }
+  .mobile-order {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 10px;
+    border: 1px dashed var(--ink);
+  }
+  .mobile-order button {
+    min-height: 44px;
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  .mobile-order button + button {
+    border-left: 1px dashed var(--ink);
+  }
+  .mobile-order button:disabled {
+    opacity: 0.35;
   }
   footer {
     flex-direction: column;

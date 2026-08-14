@@ -10,6 +10,8 @@ PTT Link Switcher is a pure-frontend app and framework-free TypeScript library. 
 - Extracts supported URLs from shared text.
 - Converts full AIDs such as `#1eMgfVyi`; supply the board when it is absent.
 - Generates reader URLs through declarative provider adapters.
+- Updates conversions automatically after a short input debounce.
+- Supports drag-and-drop reader ordering with touch-safe move controls.
 - Keeps core conversion offline with no DOM, fetch, or storage access.
 - Persists reader ordering, visibility, and the default reader in the web app.
 
