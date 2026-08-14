@@ -10,6 +10,9 @@
     "moduleResolution": "Bundler",
     "noEmit": true,
     "noUncheckedIndexedAccess": true,
+    "paths": {
+      "@vp-tw/ptt-link-switcher": ["../../packages/core/src/index.ts"]
+    },
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2022",
