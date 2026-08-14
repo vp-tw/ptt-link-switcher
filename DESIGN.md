@@ -39,7 +39,7 @@ The content container is `min(1480px, calc(100% - 48px))`, reduced to `14px` sid
 4. Canonical route strip after parsing.
 5. Reader tickets ordered by preference.
 
-Reader tickets use four equal columns on wide screens, two columns below `940px`, and one complete vertical list below `720px`. The default reader is visibly marked, while the saved order remains authoritative. Do not replace the list with a carousel, horizontal scroller, or hidden overflow.
+Reader tickets use up to four equal columns on wide screens, two columns below `940px`, and one complete vertical list below `720px`. The default reader is visibly marked, while the saved order remains authoritative. Do not replace the list with a carousel, horizontal scroller, or hidden overflow.
 
 Input changes update the canonical route and reader URLs after a short trailing debounce. The status panel communicates waiting, parsing, missing-board, error, and ready states without requiring form submission. Desktop tickets use a dedicated drag handle; narrow layouts expose explicit move controls instead of relying on touch drag gestures.
 

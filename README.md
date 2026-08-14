@@ -1,6 +1,6 @@
 # PTT Link Switcher
 
-Parse and convert PTT article links across Official PTT, BePTT, MoPTT, and PTTweb—entirely offline.
+Parse and convert PTT article links across supported readers—entirely offline.
 
 PTT Link Switcher is a pure-frontend app and framework-free TypeScript library. It turns a supported reader URL, shared text, or full AID into one canonical article reference, then generates the equivalent URL for every reader.
 

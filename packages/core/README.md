@@ -1,6 +1,6 @@
 # @vp-tw/ptt-link-switcher
 
-Parse and convert PTT article links across Official PTT, BePTT, MoPTT, and PTTweb—entirely offline.
+Parse and convert PTT article links across supported readers—entirely offline.
 
 ```ts
 import { generateProviderLinks, parsePttInput } from "@vp-tw/ptt-link-switcher";

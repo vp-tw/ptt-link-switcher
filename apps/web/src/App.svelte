@@ -24,6 +24,7 @@
   type ProviderDndLink = ProviderLink<ProviderId> & { isDndShadowItem?: boolean }
 
   const providerById = new Map(providers.map((provider) => [provider.id, provider]))
+  const providerLabels = providers.map((provider) => provider.label).join(' · ')
 
   let input = $state('')
   let board = $state('')
@@ -249,12 +250,12 @@
     </svg>
     <span>PTT LINK<br />SWITCHER</span>
   </a>
-  <p>四站轉乘 · 全程離線</p>
+  <p>閱讀站轉乘 · 全程離線</p>
 </header>
 
 <main>
   <section class="intro" aria-labelledby="page-title">
-    <h1 id="page-title">貼一次，<br /><em>四站都能看。</em></h1>
+    <h1 id="page-title">貼一次，<br /><em>換站也能看。</em></h1>
     <p>
       貼上文章網址、分享文字或完整 AID。解析只在瀏覽器內完成，不會送出你的輸入。
     </p>
@@ -283,7 +284,7 @@
             <span>ROUTE READY</span>
             <strong>網址已轉換</strong>
             {#if defaultLink}
-              <a href={defaultLink.url} target="_blank" rel="noreferrer">開啟預設站</a>
+              <a href={defaultLink.url} target="_blank" rel="noreferrer">開啟預設閱讀站</a>
             {/if}
           {:else if missingBoard}
             <span>BOARD NEEDED</span>
@@ -299,7 +300,7 @@
       </div>
       <div class="input-meta">
         <button class="text-button" type="button" onclick={useExample}>填入範例</button>
-        <span>支援 PTT 官方 · BePTT · MoPTT · PTTweb</span>
+        <span>支援 {providerLabels}</span>
       </div>
 
       {#if missingBoard}
@@ -348,7 +349,7 @@
         <details class="settings">
           <summary>排列與顯示設定</summary>
           <div class="settings-sheet">
-            <p>選擇預設站、調整順序，或隱藏不常用的站。</p>
+            <p>選擇預設閱讀站、調整順序，或隱藏不常用的站。</p>
             <ol>
               {#each preferenceState.providerOrder as id, index}
                 {@const provider = providerById.get(id)}
@@ -424,7 +425,7 @@
                 <h3>{link.label}</h3>
               </div>
               {#if link.id === preferenceState.defaultProvider}
-                <span class="default-tag">預設</span>
+                <span class="default-tag">預設閱讀站</span>
               {/if}
               <span
                 aria-label={`拖曳以調整 ${link.label} 的順序`}
@@ -470,7 +471,7 @@
   {:else}
     <section class="empty-route" aria-label="等待輸入">
       <span>READY FOR DISPATCH</span>
-      <p>輸入一篇 PTT 文章，四條閱讀路線會在這裡一次展開。</p>
+      <p>輸入一篇 PTT 文章，支援的閱讀路線會在這裡一次展開。</p>
     </section>
   {/if}
 </main>

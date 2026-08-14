@@ -1,7 +1,7 @@
 {
   "name": "@vp-tw/ptt-link-switcher",
   "version": "0.0.0",
-  "description": "Parse and convert PTT article links across Official PTT, BePTT, MoPTT, and PTTweb—entirely offline.",
+  "description": "Parse and convert PTT article links across supported readers—entirely offline.",
   "license": "MIT",
   "repository": {
     "type": "git",
