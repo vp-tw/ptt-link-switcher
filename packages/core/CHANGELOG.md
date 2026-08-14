@@ -1,5 +1,11 @@
 # @vp-tw/ptt-link-switcher
 
+## 0.1.2
+
+### Patch Changes
+
+- 328d5fe: Publish with provenance enabled for pnpm.
+
 ## 0.1.1
 
 ### Patch Changes
