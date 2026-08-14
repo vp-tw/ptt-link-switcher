@@ -1,5 +1,11 @@
 # @vp-tw/ptt-link-switcher
 
+## 0.1.3
+
+### Patch Changes
+
+- 401bce7: Document the generated provider link result shape with a complete example.
+
 ## 0.1.2
 
 ### Patch Changes
