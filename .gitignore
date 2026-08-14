@@ -1,0 +1,38 @@
+# Built from GitHub's maintained Node.gitignore template.
+node_modules/
+.pnpm-store/
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+*.tsbuildinfo
+.svelte-check/
+
+# Build and coverage output
+dist/
+coverage/
+apps/web/dist/
+packages/core/dist/
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Local design review output
+.impeccable/*
+.impeccable/mocks/
+.impeccable/review/
+.impeccable/surface-brief-source.md
+!.impeccable/settings.json
+!.impeccable/surfaces/
+!.impeccable/surfaces/apps-web-src-app-svelte.md

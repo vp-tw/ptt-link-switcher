@@ -1,0 +1,32 @@
+{
+  "name": "@vp-tw/ptt-link-switcher",
+  "version": "0.0.0",
+  "description": "Parse and convert PTT article links across Official PTT, BePTT, MoPTT, and PTTweb—entirely offline.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vp-tw/ptt-link-switcher.git",
+    "directory": "packages/core"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "scripts": {
+    "build": "tsdown",
+    "test": "vp test --run",
+    "typecheck": "tsgo --build --pretty"
+  }
+}
