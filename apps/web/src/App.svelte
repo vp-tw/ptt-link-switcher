@@ -9,6 +9,12 @@
     type ProviderId,
     type ProviderLink,
   } from '@vp-tw/ptt-link-switcher'
+  import {
+    dragHandle,
+    dragHandleZone,
+    setAriaStrings,
+    type DndEvent,
+  } from 'svelte-dnd-action'
   import { flip } from 'svelte/animate'
   import { onMount } from 'svelte'
 
@@ -26,7 +32,24 @@
   let preferenceState = $state<Preferences>(preferences.get())
   let isMounted = $state(false)
   let isParsing = $state(false)
-  let draggedProvider = $state<ProviderId | null>(null)
+  let dndLinks = $state<ProviderLink<ProviderId>[] | null>(null)
+
+  const flipDurationMs = 180
+
+  setAriaStrings({
+    dragStarted: ({ itemLabel, zoneLabel, canMoveBetweenZones }) =>
+      `已開始移動 ${itemLabel}。使用方向鍵調整在「${zoneLabel}」中的位置${canMoveBetweenZones ? '，也可以切換到其他排序區域' : ''}。`,
+    movedToPosition: ({ itemLabel, zoneLabel, position }) =>
+      `${itemLabel} 已移到「${zoneLabel}」的第 ${position} 位。`,
+    movedToZoneEnd: ({ itemLabel, zoneLabel }) =>
+      `${itemLabel} 已移到「${zoneLabel}」的最後一位。`,
+    movedToZoneStart: ({ itemLabel, zoneLabel }) =>
+      `${itemLabel} 已移到「${zoneLabel}」的第一位。`,
+    dropped: ({ itemLabel, zoneLabel, position, count }) =>
+      `${itemLabel} 已放在「${zoneLabel}」的第 ${position} 位，共 ${count} 個項目。`,
+    zoneActiveInstruction: '移到項目後按空白鍵或 Enter 開始排序。',
+    zoneDragDisabledInstruction: '請使用票券上的拖曳把手調整順序。',
+  })
 
   const article = $derived(result?.ok === true ? result.article : null)
   const missingBoard = $derived(
@@ -39,10 +62,13 @@
     const visibleOrder = preferenceState.providerOrder.filter(
       (id) => !preferenceState.hiddenProviders.includes(id),
     )
-    return visibleOrder.flatMap((id) => {
+    const linksInSavedOrder = visibleOrder.flatMap((id) => {
       const link = linkById.get(id)
       return link === undefined ? [] : [link]
     })
+    if (dndLinks === null) return linksInSavedOrder
+    const currentIds = new Set(linksInSavedOrder.map((link) => link.id))
+    return dndLinks.filter((link) => currentIds.has(link.id))
   })
   const defaultLink = $derived(
     providerLinks.find((link) => link.id === preferenceState.defaultProvider) ?? null,
@@ -74,9 +100,10 @@
       input = queryInput
     }
     isMounted = true
-    return preferences.subscribe((next) => {
+    const unsubscribe = preferences.subscribe((next) => {
       preferenceState = next
     })
+    return unsubscribe
   })
 
   function errorMessage(error: ParseError): string {
@@ -185,33 +212,32 @@
     savePreferences({ ...preferenceState, providerOrder })
   }
 
-  function startDragging(id: ProviderId): void {
-    draggedProvider = id
+  function mergeVisibleOrder(visibleOrder: ProviderId[]): ProviderId[] {
+    const visibleIds = new Set(visibleOrder)
+    let visibleIndex = 0
+    return preferenceState.providerOrder.map((id) =>
+      visibleIds.has(id) ? visibleOrder[visibleIndex++]! : id,
+    )
   }
 
-  function moveDraggedProvider(targetId: ProviderId): void {
-    const sourceId = draggedProvider
-    if (sourceId === null || sourceId === targetId) return
-
-    const providerOrder = [...preferenceState.providerOrder]
-    const sourceIndex = providerOrder.indexOf(sourceId)
-    const targetIndex = providerOrder.indexOf(targetId)
-    if (sourceIndex < 0 || targetIndex < 0) return
-    providerOrder.splice(sourceIndex, 1)
-    providerOrder.splice(targetIndex, 0, sourceId)
-    savePreferences({ ...preferenceState, providerOrder })
+  function previewProviderOrder(event: CustomEvent<DndEvent>): void {
+    dndLinks = event.detail.items as ProviderLink<ProviderId>[]
   }
 
-  function finishDragging(): void {
-    draggedProvider = null
+  function saveProviderOrder(event: CustomEvent<DndEvent>): void {
+    const links = event.detail.items as ProviderLink<ProviderId>[]
+    dndLinks = links
+    savePreferences({
+      ...preferenceState,
+      providerOrder: mergeVisibleOrder(links.map((link) => link.id)),
+    })
+    dndLinks = null
   }
 </script>
 
 <svelte:head>
   <link rel="canonical" href="https://vp-tw.github.io/ptt-link-switcher/" />
 </svelte:head>
-
-<svelte:window onmouseup={finishDragging} onpointerup={finishDragging} />
 
 <header class="site-header">
   <a class="brand" href="./" aria-label="PTT Link Switcher 首頁">
@@ -370,15 +396,24 @@
         </details>
       </div>
 
-      <div class="provider-grid">
+      <div
+        aria-label="閱讀站排序"
+        class="provider-grid"
+        use:dragHandleZone={{
+          items: providerLinks,
+          flipDurationMs,
+          dropTargetClasses: ['provider-grid--sorting'],
+          useCursorForDetection: true,
+        }}
+        onconsider={previewProviderOrder}
+        onfinalize={saveProviderOrder}
+      >
         {#each providerLinks as link, index (link.id)}
           <article
-            animate:flip={{ duration: 180 }}
-            class:dragging={draggedProvider === link.id}
+            animate:flip={{ duration: flipDurationMs }}
+            aria-label={`${link.label} 閱讀站`}
             class="provider-ticket"
             style={`--dispatch-index: ${index}`}
-            onmouseenter={() => moveDraggedProvider(link.id)}
-            onpointerenter={() => moveDraggedProvider(link.id)}
           >
             <div class="ticket-head">
               <ProviderMark id={link.id} />
@@ -390,10 +425,9 @@
                 <span class="default-tag">預設</span>
               {/if}
               <span
-                aria-hidden="true"
+                aria-label={`拖曳以調整 ${link.label} 的順序`}
                 class="drag-handle"
-                onmousedown={() => startDragging(link.id)}
-                onpointerdown={() => startDragging(link.id)}
+                use:dragHandle
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24">
                   <path d="M8 7h.01M16 7h.01M8 12h.01M16 12h.01M8 17h.01M16 17h.01" />

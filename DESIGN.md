@@ -23,8 +23,8 @@ Acid chartreuse is an operational signal. Reserve it for actions, focus, selecti
 
 ## Typography
 
-- **Display:** Barlow Condensed, weight 800. Use for the product statement and section hierarchy.
-- **Body:** IBM Plex Sans Variable with a Traditional Chinese sans fallback. Use for interface copy and instructions.
+- **Chinese display and body:** Noto Sans TC Variable. Use weight 800–900 for Chinese statements and section hierarchy, and regular/medium weights for interface copy and instructions. The bundled face keeps Traditional Chinese typography consistent across platforms.
+- **English display:** Barlow Condensed, weights 700–800. Reserve it for the wordmark, provider names, stamps, and short routing labels.
 - **Data:** IBM Plex Mono. Use for URLs, board names, article IDs, AIDs, and routing captions.
 
 Never use display type for URLs or identifiers. Keep display tracking above `-0.04em` and body copy comfortably readable.

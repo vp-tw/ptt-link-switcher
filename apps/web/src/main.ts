@@ -1,6 +1,6 @@
 import "@fontsource/barlow-condensed/700.css";
 import "@fontsource/barlow-condensed/800.css";
-import "@fontsource-variable/ibm-plex-sans";
+import "@fontsource-variable/noto-sans-tc";
 import "@fontsource/ibm-plex-mono/400.css";
 import { mount } from "svelte";
 
