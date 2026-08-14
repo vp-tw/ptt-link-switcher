@@ -50,8 +50,36 @@ const result = parsePttInput("https://www.ptt.cc/bbs/Browsers/M.1750772319.A.F2C
 
 if (result.ok) {
   console.log(result.article);
-  console.log(generateProviderLinks(result.article));
+  const links = generateProviderLinks(result.article);
+  console.log(links);
 }
+```
+
+`generateProviderLinks` 會依 provider registry 的順序回傳可用網址：
+
+```json
+[
+  {
+    "id": "official",
+    "label": "PTT 官方",
+    "url": "https://www.ptt.cc/bbs/Browsers/M.1750772319.A.F2C.html"
+  },
+  {
+    "id": "beptt",
+    "label": "BePTT",
+    "url": "https://bbs.beptt.tw/Browsers/M.1750772319.A.F2C"
+  },
+  {
+    "id": "moptt",
+    "label": "MoPTT",
+    "url": "https://moptt.tw/p/Browsers.M.1750772319.A.F2C"
+  },
+  {
+    "id": "pttweb",
+    "label": "PTTweb",
+    "url": "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C"
+  }
+]
 ```
 
 完整 AID 不包含看板名稱，因此離線轉換時必須明確提供：
