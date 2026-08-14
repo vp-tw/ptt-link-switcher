@@ -35,6 +35,7 @@ Users may paste a direct URL, share text containing a URL, or a full AID such as
 - Generate, copy, and open one provider link at a time.
 - Keep `packages/core` free of frameworks, DOM APIs, fetch, and storage.
 - Keep browser persistence and reactive query-string state in `apps/web`.
+- Cache the web app for offline use and ask before reloading into a ready update.
 - Keep article metadata outside the proof of concept.
 - Support current evergreen browsers without legacy-browser polyfills or excessive compatibility work.
 - Bundle provider icons and record their provenance. Consistent original artwork may replace official marks.

@@ -20,6 +20,11 @@
 
   import ProviderMark from './ProviderMark.svelte'
   import { preferences, savePreferences, type Preferences } from './preferences.js'
+  import {
+    dismissPwaUpdate,
+    pwaUpdateAvailable,
+    updatePwa,
+  } from './pwa-update.js'
 
   type ProviderDndLink = ProviderLink<ProviderId> & { isDndShadowItem?: boolean }
 
@@ -33,6 +38,7 @@
   let copyFailedProvider = $state<ProviderId | null>(null)
   let copyFeedback = $state('')
   let preferenceState = $state<Preferences>(preferences.get())
+  let showPwaUpdate = $state(pwaUpdateAvailable.get())
   let isMounted = $state(false)
   let isParsing = $state(false)
   let dndLinks = $state<ProviderDndLink[] | null>(null)
@@ -106,7 +112,13 @@
     const unsubscribe = preferences.subscribe((next) => {
       preferenceState = next
     })
-    return unsubscribe
+    const unsubscribePwaUpdate = pwaUpdateAvailable.subscribe((available) => {
+      showPwaUpdate = available
+    })
+    return () => {
+      unsubscribe()
+      unsubscribePwaUpdate()
+    }
   })
 
   function errorMessage(error: ParseError): string {
@@ -475,6 +487,20 @@
     </section>
   {/if}
 </main>
+
+{#if showPwaUpdate}
+  <aside class="update-prompt" aria-labelledby="update-title">
+    <div>
+      <span>NEW ROUTE READY</span>
+      <strong id="update-title">新版已準備完成</strong>
+      <p>立即重新載入，使用最新版本。</p>
+    </div>
+    <div class="update-actions">
+      <button type="button" onclick={dismissPwaUpdate}>稍後</button>
+      <button type="button" onclick={updatePwa}>立即更新</button>
+    </div>
+  </aside>
+{/if}
 
 <footer>
   <p>

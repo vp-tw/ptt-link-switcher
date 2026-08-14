@@ -635,6 +635,66 @@ textarea:focus {
   border: 0;
 }
 
+.update-prompt {
+  position: fixed;
+  z-index: 100;
+  right: 24px;
+  bottom: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: end;
+  width: min(560px, calc(100% - 48px));
+  padding: 20px;
+  color: var(--ink);
+  background: var(--paper);
+  background-image: url("/paper-texture.webp");
+  box-shadow: 0 22px 52px rgb(3 10 22 / 48%);
+  clip-path: polygon(
+    0 0,
+    calc(100% - 12px) 0,
+    100% 12px,
+    100% 100%,
+    12px 100%,
+    0 calc(100% - 12px)
+  );
+}
+.update-prompt span {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+}
+.update-prompt strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+.update-prompt p {
+  margin: 4px 0 0;
+  color: var(--muted-navy);
+  font-size: 0.82rem;
+}
+.update-actions {
+  display: grid;
+  grid-template-columns: auto auto;
+  border: 2px solid var(--ink);
+}
+.update-actions button {
+  min-height: 44px;
+  padding: 8px 14px;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+.update-actions button + button {
+  color: var(--navy);
+  background: var(--acid);
+  border-left: 2px solid var(--ink);
+}
+
 .empty-route {
   display: grid;
   place-items: center;
@@ -827,6 +887,15 @@ footer > a svg {
   }
   footer {
     flex-direction: column;
+  }
+  .update-prompt {
+    right: 14px;
+    bottom: 14px;
+    grid-template-columns: 1fr;
+    width: calc(100% - 28px);
+  }
+  .update-actions {
+    grid-template-columns: 1fr 1fr;
   }
 }
 

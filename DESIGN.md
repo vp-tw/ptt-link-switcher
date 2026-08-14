@@ -50,6 +50,7 @@ Input changes update the canonical route and reader URLs after a short trailing 
 - Express depth through paper overlap and soft offset shadows. Do not use glass surfaces.
 - Keep Copy and Open as equal, explicit actions within every provider ticket.
 - Keep the direct GitHub repository link visible in the footer.
+- Present ready PWA updates as a compact routing notice with explicit Later and Update actions.
 - Use native form controls, buttons, links, and disclosure behavior.
 
 Paper surfaces use the bundled `/paper-texture.webp`. Provider marks and routing glyphs are authored SVG geometry bundled with the app. Do not add remote visual dependencies.
