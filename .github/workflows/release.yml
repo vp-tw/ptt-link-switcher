@@ -26,8 +26,8 @@ jobs:
       - run: corepack pnpm install --frozen-lockfile
       - uses: changesets/action@v2
         with:
-          publish: corepack pnpm release
-          version: corepack pnpm version
+          publish-script: corepack pnpm release
+          version-script: corepack pnpm version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
