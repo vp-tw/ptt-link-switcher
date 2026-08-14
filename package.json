@@ -1,0 +1,31 @@
+{
+  "name": "ptt-link-switcher-monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vp run -r build",
+    "check": "vp check",
+    "dev": "vp dev",
+    "format": "vp fmt",
+    "pack": "vp pack",
+    "release": "pnpm build && changeset publish",
+    "test": "vp test --run",
+    "typecheck": "pnpm -r typecheck",
+    "version": "changeset version && pnpm install --lockfile-only"
+  },
+  "devDependencies": {
+    "@changesets/cli": "3.0.0",
+    "@sveltejs/vite-plugin-svelte": "7.3.0",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
+    "svelte": "5.56.9",
+    "svelte-check": "4.7.5",
+    "tsdown": "0.22.14",
+    "typescript": "6.0.3",
+    "vite-plus": "0.2.9"
+  },
+  "engines": {
+    "node": ">=24.19.0"
+  },
+  "packageManager": "pnpm@11.21.0"
+}
