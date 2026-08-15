@@ -256,16 +256,14 @@
 
 <header class="site-header">
   <a class="brand" href="./" aria-label="PTT Link Switcher 首頁">
-    <svg aria-hidden="true" class="brand-mark" viewBox="0 0 56 36">
-      <path class="brand-mark-signal" d="M8 4h12v28H8l-6-6V10z" />
-      <path class="brand-mark-ticket" d="M8 4h40l6 6v16l-6 6H8l-6-6V10z" />
-      <path class="brand-mark-divider" d="M20 4v28" />
-      <path class="brand-mark-input" d="M8 18h12" />
-      <path class="brand-mark-route" d="M20 18h5m0 0 9-9h10m-19 9 9 9h10" />
-      <circle class="brand-mark-node" cx="25" cy="18" r="2.5" />
-      <circle class="brand-mark-node" cx="44" cy="9" r="2.5" />
-      <circle class="brand-mark-node" cx="44" cy="27" r="2.5" />
-    </svg>
+    <img
+      class="brand-mark"
+      src="./brand-mark-128.png"
+      srcset="./brand-mark-128.png 2x, ./brand-mark-256.png 4x"
+      width="64"
+      height="32"
+      alt=""
+    />
     <span>PTT LINK<br />SWITCHER</span>
   </a>
   <p>閱讀站轉乘 · 全程離線</p>
