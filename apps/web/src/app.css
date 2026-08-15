@@ -82,10 +82,26 @@ svg {
   text-decoration: none;
 }
 .brand svg {
-  width: 36px;
+  width: 56px;
   height: 36px;
   color: var(--acid);
-  stroke-width: 2.3;
+  flex: 0 0 auto;
+  stroke-width: 2.2;
+}
+.brand-mark-signal {
+  fill: var(--acid);
+  stroke: none;
+}
+.brand-mark-ticket,
+.brand-mark-divider {
+  stroke: var(--acid);
+}
+.brand-mark-input {
+  stroke: var(--navy);
+}
+.brand-mark-route,
+.brand-mark-node {
+  stroke: var(--paper);
 }
 .brand span {
   font-family: "Barlow Condensed", sans-serif;
