@@ -38,7 +38,7 @@ Users may paste a direct URL, share text containing a URL, or a full AID such as
 - Cache the web app for offline use and ask before reloading into a ready update.
 - Keep article metadata outside the proof of concept.
 - Support current evergreen browsers without legacy-browser polyfills or excessive compatibility work.
-- Bundle provider icons and record their provenance. Consistent original artwork may replace official marks.
+- Use official provider icons: bundle BePTT artwork because of its cross-site hotlink restriction, and load the other four from their own published URLs. Keep bundled geometric fallbacks for failed or offline image requests and record icon provenance.
 
 ## Brand Commitments
 

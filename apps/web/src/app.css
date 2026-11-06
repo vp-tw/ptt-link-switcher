@@ -524,8 +524,10 @@ textarea:focus {
   border-bottom: 2px solid var(--ink);
 }
 .provider-mark {
+  flex: none;
   width: 42px;
   height: 42px;
+  object-fit: contain;
   stroke-width: 2.2;
 }
 .ticket-head h3 {
