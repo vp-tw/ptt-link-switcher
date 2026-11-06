@@ -1,5 +1,11 @@
 # @vp-tw/ptt-link-switcher
 
+## 0.2.0
+
+### Minor Changes
+
+- 203c4e1: Add the NextPTT provider for parsing and generating article links. Set the built-in reader order to Official PTT, BePTT, PTTweb, MoPTT, and NextPTT.
+
 ## 0.1.3
 
 ### Patch Changes
