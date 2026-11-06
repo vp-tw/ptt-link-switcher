@@ -28,17 +28,24 @@ if (result.ok) {
     "url": "https://bbs.beptt.tw/Browsers/M.1750772319.A.F2C"
   },
   {
+    "id": "pttweb",
+    "label": "PTTweb",
+    "url": "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C"
+  },
+  {
     "id": "moptt",
     "label": "MoPTT",
     "url": "https://moptt.tw/p/Browsers.M.1750772319.A.F2C"
   },
   {
-    "id": "pttweb",
-    "label": "PTTweb",
-    "url": "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C"
+    "id": "nextptt",
+    "label": "NextPTT",
+    "url": "https://nextptt.app/boards/Browsers/post/M.1750772319.A.F2C"
   }
 ]
 ```
+
+The built-in order is Official PTT, BePTT, PTTweb, MoPTT, and NextPTT. This is a default ordering, not a guarantee of social-platform preview compatibility.
 
 Provider support is adapter-based. Pass custom adapters to `parsePttInput` and `generateProviderLinks` to extend parsing and URL generation without changing the built-in registry.
 

@@ -20,7 +20,7 @@ PTT Link Switcher parses PTT article URLs and full AID input into a canonical ar
 
 ## Positioning
 
-One offline conversion model connects Official PTT, BePTT, MoPTT, and PTTweb while keeping reader definitions independently maintainable and reusable outside the web app.
+One offline conversion model connects Official PTT, BePTT, PTTweb, MoPTT, and NextPTT while keeping reader definitions independently maintainable and reusable outside the web app.
 
 ## Operating Context
 
@@ -59,6 +59,7 @@ There are no testimonials, usage metrics, customer claims, or existing brand ass
 - Provider support stays easy to inspect, test, maintain, and extend.
 - The first interaction explains the product by performing the conversion.
 - Preferences improve repeat use without entering the reusable core.
+- Keep Official PTT first in the factory order. Order alternative readers by low advertising and distraction, then usable sharing metadata. Preserve saved user order and append newly added readers. See [the provider-order observations](docs/provider-order.md) for the current evidence and limits.
 
 ## Accessibility & Inclusion
 

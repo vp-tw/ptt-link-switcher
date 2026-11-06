@@ -3,7 +3,7 @@ export interface PttArticleRef {
   readonly articleId: string;
 }
 
-export type ProviderId = "official" | "beptt" | "moptt" | "pttweb";
+export type ProviderId = "official" | "beptt" | "moptt" | "pttweb" | "nextptt";
 
 export interface PttUrl {
   readonly hostname: string;

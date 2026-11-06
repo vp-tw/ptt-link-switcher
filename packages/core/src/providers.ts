@@ -70,12 +70,35 @@ export const pttwebProvider: ProviderAdapter<"pttweb"> = defineProvider({
     `https://www.pttweb.cc/bbs/${encodeURIComponent(article.board)}/${article.articleId}`,
 });
 
+export const nextpttProvider: ProviderAdapter<"nextptt"> = defineProvider({
+  hosts: ["nextptt.app"],
+  id: "nextptt",
+  label: "NextPTT",
+  parseUrl: (url: PttUrl): PttArticleRef | null => {
+    const match = /^\/boards\/([^/]+)\/post\/((?:M|G)\.\d+\.A(?:\.[0-9A-Fa-f]{3})?)\/?$/.exec(
+      url.pathname,
+    );
+    if (!match || match[1] === undefined || match[2] === undefined) return null;
+    const board = decodePathPart(match[1]);
+    return board === null ? null : normalizeArticleRef(board, match[2]);
+  },
+  toUrl: (article: PttArticleRef): string =>
+    `https://nextptt.app/boards/${encodeURIComponent(article.board)}/post/${article.articleId}`,
+});
+
 export const providers: readonly [
   ProviderAdapter<"official">,
   ProviderAdapter<"beptt">,
-  ProviderAdapter<"moptt">,
   ProviderAdapter<"pttweb">,
-] = Object.freeze([officialProvider, bepttProvider, mopttProvider, pttwebProvider] as const);
+  ProviderAdapter<"moptt">,
+  ProviderAdapter<"nextptt">,
+] = Object.freeze([
+  officialProvider,
+  bepttProvider,
+  pttwebProvider,
+  mopttProvider,
+  nextpttProvider,
+] as const);
 
 export function getProvider<TAdapter extends ProviderAdapter>(
   adapters: readonly TAdapter[],
