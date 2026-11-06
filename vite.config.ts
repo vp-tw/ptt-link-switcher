@@ -8,6 +8,6 @@ export default defineConfig({
     coverage: {
       enabled: false,
     },
-    include: ["packages/**/*.test.ts"],
+    include: ["packages/**/*.test.ts", "apps/web/src/**/*.test.ts"],
   },
 });

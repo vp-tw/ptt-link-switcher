@@ -57,3 +57,8 @@ export function savePreferences(next: Preferences): void {
   preferences.set(normalized);
   localStorage.setItem(storageKey, JSON.stringify(normalized));
 }
+
+export function resetPreferences(): void {
+  localStorage.removeItem(storageKey);
+  preferences.set(defaults);
+}
