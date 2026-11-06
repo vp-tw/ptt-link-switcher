@@ -17,7 +17,6 @@
     TRIGGERS,
     type DndEvent,
   } from 'svelte-dnd-action'
-  import { flip } from 'svelte/animate'
   import { onMount, tick } from 'svelte'
 
   import ProviderMark from './ProviderMark.svelte'
@@ -28,7 +27,12 @@
     updatePwa,
   } from './pwa-update.js'
 
-  type ProviderDndLink = ProviderLink<ProviderId> & { isDndShadowItem?: boolean }
+  type ProviderOrderItem = {
+    id: string
+    providerId: ProviderId
+    label: string
+    isDndShadowItem?: boolean
+  }
 
   const providerById = new Map(providers.map((provider) => [provider.id, provider]))
   const providerLabels = providers.map((provider) => provider.label).join(' · ')
@@ -43,13 +47,12 @@
   let showPwaUpdate = $state(pwaUpdateAvailable.get())
   let isMounted = $state(false)
   let isParsing = $state(false)
-  let dndLinks = $state<ProviderDndLink[] | null>(null)
-
-  const flipDurationMs = 180
+  let dndItems = $state<ProviderOrderItem[] | null>(null)
+  let isSorting = $state(false)
 
   setAriaStrings({
     dragStarted: ({ itemLabel, zoneLabel, canMoveBetweenZones }) =>
-      `已開始移動 ${itemLabel}。使用方向鍵調整在「${zoneLabel}」中的位置${canMoveBetweenZones ? '，也可以切換到其他排序區域' : ''}。`,
+      `已開始移動 ${itemLabel}。使用方向鍵調整在「${zoneLabel}」中的位置${canMoveBetweenZones ? '，也可以切換到其他排序區域' : ''}。按空白鍵或 Enter 完成，Escape 結束。`,
     movedToPosition: ({ itemLabel, zoneLabel, position }) =>
       `${itemLabel} 已移到「${zoneLabel}」的第 ${position} 位。`,
     movedToZoneEnd: ({ itemLabel, zoneLabel }) =>
@@ -59,7 +62,7 @@
     dropped: ({ itemLabel, zoneLabel, position, count }) =>
       `${itemLabel} 已放在「${zoneLabel}」的第 ${position} 位，共 ${count} 個項目。`,
     zoneActiveInstruction: '移到項目後按空白鍵或 Enter 開始排序。',
-    zoneDragDisabledInstruction: '請使用票券上的拖曳把手調整順序。',
+    zoneDragDisabledInstruction: '請使用設定清單中的拖曳把手調整順序。',
   })
 
   const article = $derived(result?.ok === true ? result.article : null)
@@ -73,17 +76,28 @@
     const visibleOrder = preferenceState.providerOrder.filter(
       (id) => !preferenceState.hiddenProviders.includes(id),
     )
-    const linksInSavedOrder = visibleOrder.flatMap((id) => {
+    return visibleOrder.flatMap((id) => {
       const link = linkById.get(id)
       return link === undefined ? [] : [link]
     })
-    if (dndLinks === null) return linksInSavedOrder
-    const currentIds = new Set(linksInSavedOrder.map((link) => link.id))
-    return dndLinks.filter((link) => currentIds.has(link.id) || link.isDndShadowItem)
   })
+  const settingsProviders = $derived<ProviderOrderItem[]>(
+    dndItems ?? preferenceState.providerOrder.map((id) => ({
+      id,
+      providerId: id,
+      label: providerById.get(id)?.label ?? id,
+    })),
+  )
   const defaultLink = $derived(
     providerLinks.find((link) => link.id === preferenceState.defaultProvider) ?? null,
   )
+
+  $effect(() => {
+    if (article === null) {
+      dndItems = null
+      isSorting = false
+    }
+  })
 
   $effect(() => {
     const pendingInput = input
@@ -180,7 +194,7 @@
 
   function resetReaderPreferences(): void {
     resetPreferences()
-    dndLinks = null
+    dndItems = null
     copiedProvider = null
     copyFailedProvider = null
     statusMessage = '已重設閱讀站偏好。'
@@ -207,11 +221,6 @@
     savePreferences({ ...preferenceState, defaultProvider, hiddenProviders })
   }
 
-  function focusReaderWhenHidden(event: FocusEvent, control: HTMLElement): void {
-    if (event.relatedTarget !== null || control.getClientRects().length > 0) return
-    control.closest('.provider-ticket')?.querySelector<HTMLElement>('.reader-name')?.focus({ preventScroll: true })
-  }
-
   async function finishProviderMove(
     id: ProviderId,
     orderedIds: readonly ProviderId[],
@@ -222,7 +231,7 @@
     await tick()
     if (!trigger.isConnected) return
     const focusTarget = trigger.disabled
-      ? trigger.closest('.provider-ticket, li')?.querySelector<HTMLElement>('.reader-name')
+      ? trigger.closest('.settings-row')?.querySelector<HTMLElement>('.reader-name')
       : trigger
     focusTarget?.focus({ preventScroll: true })
     focusTarget?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' })
@@ -245,65 +254,32 @@
     await finishProviderMove(id, providerOrder, trigger)
   }
 
-  async function moveVisibleProvider(
-    id: ProviderId,
-    offset: -1 | 1,
-    trigger: HTMLButtonElement,
-  ): Promise<void> {
-    const visibleOrder = preferenceState.providerOrder.filter(
-      (providerId) => !preferenceState.hiddenProviders.includes(providerId),
-    )
-    const currentIndex = visibleOrder.indexOf(id)
-    const adjacentId = visibleOrder[currentIndex + offset]
-    if (adjacentId === undefined) return
-
-    const providerOrder = [...preferenceState.providerOrder]
-    const adjacentIndex = providerOrder.indexOf(adjacentId)
-    const fullIndex = providerOrder.indexOf(id)
-    ;[providerOrder[fullIndex], providerOrder[adjacentIndex]] = [
-      providerOrder[adjacentIndex]!,
-      providerOrder[fullIndex]!,
-    ]
-    savePreferences({ ...preferenceState, providerOrder })
-    await finishProviderMove(
-      id,
-      providerOrder.filter((providerId) => !preferenceState.hiddenProviders.includes(providerId)),
-      trigger,
-    )
-  }
-
-  function mergeVisibleOrder(visibleOrder: ProviderId[]): ProviderId[] {
-    const visibleIds = new Set(visibleOrder)
-    let visibleIndex = 0
-    return preferenceState.providerOrder.map((id) =>
-      visibleIds.has(id) ? visibleOrder[visibleIndex++]! : id,
-    )
-  }
-
-  async function previewProviderOrder(event: CustomEvent<DndEvent>): Promise<void> {
+  async function previewProviderOrder(event: CustomEvent<DndEvent<ProviderOrderItem>>): Promise<void> {
     if (
       event.detail.info.source === SOURCES.KEYBOARD &&
       event.detail.info.trigger === TRIGGERS.DRAG_STOPPED
     ) {
-      dndLinks = null
+      isSorting = false
+      dndItems = null
       const zone = event.currentTarget
       if (!(zone instanceof HTMLElement)) return
       await tick()
-      const index = providerLinks.findIndex((link) => link.id === event.detail.info.id)
+      if (document.activeElement !== document.body) return
+      const index = settingsProviders.findIndex((provider) => provider.id === event.detail.info.id)
       zone.children[index]?.querySelector<HTMLElement>('.reader-name')?.focus({ preventScroll: true })
       return
     }
-    dndLinks = event.detail.items as ProviderDndLink[]
+    isSorting = true
+    dndItems = event.detail.items
   }
 
-  function saveProviderOrder(event: CustomEvent<DndEvent>): void {
-    const links = event.detail.items as ProviderDndLink[]
-    dndLinks = links
+  function saveProviderOrder(event: CustomEvent<DndEvent<ProviderOrderItem>>): void {
+    if (event.detail.info.source === SOURCES.POINTER) isSorting = false
     savePreferences({
       ...preferenceState,
-      providerOrder: mergeVisibleOrder(links.map((link) => link.id)),
+      providerOrder: event.detail.items.map((provider) => provider.providerId),
     })
-    dndLinks = null
+    dndItems = null
   }
 </script>
 
@@ -411,101 +387,101 @@
       <div class="section-heading">
         <div>
           <h2 id="providers-title">選擇閱讀站</h2>
-          <p>所有可用路線一次攤開；拖曳票券即可調整順序。</p>
+          <p>所有可用路線一次攤開；排序與顯示可在設定中調整。</p>
         </div>
         <details class="settings">
           <summary>排列與顯示設定</summary>
           <div class="settings-sheet">
-            <p>選擇預設閱讀站、調整順序，或隱藏不常用的站。</p>
-            <ol>
-              {#each preferenceState.providerOrder as id, index (id)}
-                {@const provider = providerById.get(id)}
-                {#if provider}
-                  <li>
-                    <span class="reader-name" tabindex="-1">{provider.label}</span>
-                    <label>
-                      <input
-                        type="radio"
-                        name="default-provider"
-                        checked={preferenceState.defaultProvider === id}
-                        onchange={() => updateDefault(id)}
-                      />
-                      預設
-                    </label>
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={!preferenceState.hiddenProviders.includes(id)}
-                        disabled={
+            <p>拖曳把手或使用上下移調整順序，也可選擇預設站與顯示項目。</p>
+            <ol
+              class="settings-order"
+              aria-label="閱讀站排序"
+              use:dragHandleZone={{
+                items: settingsProviders,
+                dropTargetClasses: ['settings-order--sorting'],
+                useCursorForDetection: true,
+              }}
+              onconsider={previewProviderOrder}
+              onfinalize={saveProviderOrder}
+            >
+              {#each settingsProviders as provider, index (provider.id)}
+                {@const id = provider.providerId}
+                <li
+                  class="settings-row"
+                  aria-label={`${provider.label} 排序設定`}
+                  inert={provider.isDndShadowItem ?? false}
+                >
+                  <span class="reader-name" tabindex="-1">{provider.label}</span>
+                  <label>
+                    <input
+                      type="radio"
+                      disabled={isSorting}
+                      name="default-provider"
+                      checked={preferenceState.defaultProvider === id}
+                      onchange={() => updateDefault(id)}
+                    />
+                    預設
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={!preferenceState.hiddenProviders.includes(id)}
+                      disabled={
+                        isSorting || (
                           !preferenceState.hiddenProviders.includes(id) &&
                           preferenceState.hiddenProviders.length === providers.length - 1
-                        }
-                        onchange={() => toggleVisibility(id)}
-                      />
-                      顯示
-                    </label>
+                        )
+                      }
+                      onchange={() => toggleVisibility(id)}
+                    />
+                    顯示
+                  </label>
+                  <div class="sort-controls">
+                    <span
+                      aria-label={`拖曳以調整 ${provider.label} 的順序`}
+                      class="drag-handle"
+                      use:dragHandle
+                    >
+                      <svg aria-hidden="true" viewBox="0 0 24 24">
+                        <path d="M8 7h.01M16 7h.01M8 12h.01M16 12h.01M8 17h.01M16 17h.01" />
+                      </svg>
+                    </span>
                     <span class="order-buttons">
                       <button
                         type="button"
                         aria-label={`將 ${provider.label} 上移`}
-                        disabled={index === 0}
+                        disabled={isSorting || index === 0}
                         onclick={(event) => moveProvider(id, -1, event.currentTarget)}
                       >上移</button>
                       <button
                         type="button"
                         aria-label={`將 ${provider.label} 下移`}
-                        disabled={index === preferenceState.providerOrder.length - 1}
+                        disabled={isSorting || index === preferenceState.providerOrder.length - 1}
                         onclick={(event) => moveProvider(id, 1, event.currentTarget)}
                       >下移</button>
                     </span>
-                  </li>
-                {/if}
+                  </div>
+                </li>
               {/each}
             </ol>
-            <button class="reset-preferences" type="button" onclick={resetReaderPreferences}>
+            <button class="reset-preferences" type="button" disabled={isSorting} onclick={resetReaderPreferences}>
               重設閱讀站偏好
             </button>
           </div>
         </details>
       </div>
 
-      <div
-        aria-label="閱讀站排序"
-        class="provider-grid"
-        use:dragHandleZone={{
-          items: providerLinks,
-          flipDurationMs,
-          dropTargetClasses: ['provider-grid--sorting'],
-          useCursorForDetection: true,
-        }}
-        onconsider={previewProviderOrder}
-        onfinalize={saveProviderOrder}
-      >
-        {#each providerLinks as link, index (link.id)}
-          <article
-            animate:flip={{ duration: flipDurationMs }}
-            aria-label={`${link.label} 閱讀站`}
-            class="provider-ticket"
-            style={`--dispatch-index: ${index}`}
-          >
+      <div class="provider-grid">
+        {#each providerLinks as link (link.id)}
+          <article aria-label={`${link.label} 閱讀站`} class="provider-ticket">
             <div class="ticket-head">
               <ProviderMark id={link.id} />
               <div>
-                <h3 class="reader-name" tabindex="-1">{link.label}</h3>
+                <h3>{link.label}</h3>
                 {#if link.id === preferenceState.defaultProvider}
                   <span class="default-tag">預設閱讀站</span>
                 {/if}
               </div>
-              <span
-                aria-label={`拖曳以調整 ${link.label} 的順序`}
-                class="drag-handle"
-                onblur={(event) => focusReaderWhenHidden(event, event.currentTarget)}
-                use:dragHandle
-              >
-                <svg aria-hidden="true" viewBox="0 0 24 24">
-                  <path d="M8 7h.01M16 7h.01M8 12h.01M16 12h.01M8 17h.01M16 17h.01" />
-                </svg>
-              </span>
             </div>
             <div class="ticket-actions">
               <input
@@ -526,22 +502,6 @@
                 開啟
                 <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 17 17 7m-8 0h8v8" /></svg>
               </a>
-            </div>
-            <div class="mobile-order" aria-label={`${link.label} 排序控制`}>
-              <button
-                type="button"
-                disabled={index === 0}
-                aria-label={`將 ${link.label} 上移`}
-                onblur={(event) => focusReaderWhenHidden(event, event.currentTarget)}
-                onclick={(event) => moveVisibleProvider(link.id, -1, event.currentTarget)}
-              >上移</button>
-              <button
-                type="button"
-                disabled={index === providerLinks.length - 1}
-                aria-label={`將 ${link.label} 下移`}
-                onblur={(event) => focusReaderWhenHidden(event, event.currentTarget)}
-                onclick={(event) => moveVisibleProvider(link.id, 1, event.currentTarget)}
-              >下移</button>
             </div>
           </article>
         {/each}

@@ -41,7 +41,7 @@ The content container is `min(1480px, calc(100% - 48px))`, reduced to `14px` sid
 
 Reader tickets use up to four equal columns on wide screens, two columns below `940px`, and one complete vertical list below `720px`. The default reader is visibly marked, while the saved order remains authoritative. Do not replace the list with a carousel, horizontal scroller, or hidden overflow.
 
-Input changes update the canonical route and reader URLs after a short trailing debounce. The status panel communicates waiting, parsing, missing-board, error, and ready states without requiring form submission. Reader preferences can be reset from the settings disclosure; resetting removes only the repository-prefixed preference key. Desktop tickets use a dedicated drag handle; narrow layouts expose explicit Up/Down controls instead of relying on touch drag gestures. The settings list remains vertical at every width and offers the same Up/Down actions. Button reordering keeps keyboard focus on the moved reader, returns focus to its name at either end so repeated activation cannot reverse the move, and announces the new position. Keyboard dragging also returns focus to the moved reader name when it ends. When a responsive control disappears at a breakpoint, focus returns to the same reader name.
+Input changes update the canonical route and reader URLs after a short trailing debounce. The status panel communicates waiting, parsing, missing-board, error, and ready states without requiring form submission. Reader preferences can be reset from the settings disclosure; resetting removes only the repository-prefixed preference key. All sorting controls live in the settings disclosure. Its vertical list combines a dedicated drag handle with Up/Down buttons at every width; reader tickets expose only their URLs and Copy/Open actions. Preference fields and reset are temporarily disabled during a drag to prevent competing changes. Button reordering keeps keyboard focus on the moved reader, returns focus to its name at either end so repeated activation cannot reverse the move, and announces the new position. Keyboard dragging also returns focus to the moved reader name when it ends.
 
 ## Component grammar
 
@@ -57,7 +57,7 @@ Paper surfaces use the bundled `/paper-texture.webp`. Provider marks use officia
 
 ## Motion
 
-Successful parsing stamps the canonical route. The route stamp uses a short scale-and-blur entrance. Reader tickets reserve transform for drag-and-drop positioning: the lifted ticket follows the pointer, the open position remains visible, and surrounding tickets move with a short FLIP transition.
+Successful parsing stamps the canonical route. The route stamp uses a short scale-and-blur entrance. Settings sorting updates positions immediately: the lifted row follows the pointer and the open position shows where it will be dropped.
 
 Under `prefers-reduced-motion: reduce`, remove meaningful duration and delay while keeping the final parsed state visible.
 
