@@ -6,7 +6,7 @@ PTT Link Switcher 是純前端應用程式，也是無框架相依的 TypeScript
 
 ## 功能
 
-- 解析 PTT 官方、BePTT、MoPTT 與 PTTweb 的文章網址。
+- 解析 PTT 官方、BePTT、PTTweb、MoPTT 與 NextPTT 的文章網址。
 - 從分享文字擷取支援的網址。
 - 轉換 `#1eMgfVyi` 等完整 AID；若輸入未包含看板，需另外提供看板名稱。
 - 透過宣告式 provider adapter（閱讀站轉接器）產生各閱讀站網址。
@@ -70,14 +70,19 @@ if (result.ok) {
     "url": "https://bbs.beptt.tw/Browsers/M.1750772319.A.F2C"
   },
   {
+    "id": "pttweb",
+    "label": "PTTweb",
+    "url": "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C"
+  },
+  {
     "id": "moptt",
     "label": "MoPTT",
     "url": "https://moptt.tw/p/Browsers.M.1750772319.A.F2C"
   },
   {
-    "id": "pttweb",
-    "label": "PTTweb",
-    "url": "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C"
+    "id": "nextptt",
+    "label": "NextPTT",
+    "url": "https://nextptt.app/boards/Browsers/post/M.1750772319.A.F2C"
   }
 ]
 ```

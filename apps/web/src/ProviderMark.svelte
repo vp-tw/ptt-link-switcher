@@ -14,6 +14,8 @@
   {:else if id === 'moptt'}
     <path d="M8 39V9l16 15L40 9v30" />
     <circle cx="24" cy="24" r="4" />
+  {:else if id === 'nextptt'}
+    <path d="M10 39V9l28 30V9M10 9h28" />
   {:else}
     <path d="M7 13h34v26H7zM7 13l6-6h28v32" />
     <path d="M15 22h18M15 29h12" />

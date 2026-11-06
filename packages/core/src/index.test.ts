@@ -28,6 +28,7 @@ describe("parsePttInput", () => {
     ["BePTT", "https://bbs.beptt.tw/Browsers/M.1750772319.A.F2C"],
     ["MoPTT", "https://moptt.tw/p/Browsers.M.1750772319.A.F2C"],
     ["PTTweb", "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C"],
+    ["NextPTT", "https://nextptt.app/boards/Browsers/post/M.1750772319.A.F2C"],
   ])("parses a %s URL", (_provider, url) => {
     const result = parsePttInput(url);
     expect(result).toMatchObject({ article, ok: true });
@@ -38,6 +39,37 @@ describe("parsePttInput", () => {
       "推薦這篇文章：https://www.ptt.cc/bbs/Browsers/M.1750772319.A.F2C.html。",
     );
     expect(result).toMatchObject({ article, ok: true });
+  });
+
+  it("extracts the supplied NextPTT article from share text", () => {
+    expect(
+      parsePttInput("分享：https://nextptt.app/boards/Stock/post/M.1793932432.A.A03。"),
+    ).toMatchObject({
+      article: { board: "Stock", articleId: "M.1793932432.A.A03" },
+      ok: true,
+      source: { kind: "url", providerId: "nextptt" },
+    });
+  });
+
+  it("normalizes a NextPTT URL with an encoded board, query, and fragment", () => {
+    expect(
+      parsePttInput("https://nextptt.app/boards/%53tock/post/M.1793932432.A.a03/?share=1#comments"),
+    ).toMatchObject({
+      article: { board: "Stock", articleId: "M.1793932432.A.A03" },
+      ok: true,
+    });
+  });
+
+  it.each([
+    "https://nextptt.app/boards/Stock",
+    "https://nextptt.app/boards/Stock/post/not-an-article",
+    "https://nextptt.app/boards/Stock/post/M.1793932432.A.A03/extra",
+    "https://nextptt.app/boards/Stock/comments/M.1793932432.A.A03",
+    "https://nextptt.app/boards/%ZZ/post/M.1793932432.A.A03",
+    "https://nextptt.app/boards/Stock%2Fother/post/M.1793932432.A.A03",
+    "https://nextptt.app.evil.example/boards/Stock/post/M.1793932432.A.A03",
+  ])("rejects an unsupported NextPTT URL: %s", (url) => {
+    expect(parsePttInput(url).ok).toBe(false);
   });
 
   it("asks for a board when a full AID has none", () => {
@@ -100,14 +132,19 @@ describe("provider adapters", () => {
         url: "https://bbs.beptt.tw/Browsers/M.1750772319.A.F2C",
       },
       {
+        id: "pttweb",
+        label: "PTTweb",
+        url: "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C",
+      },
+      {
         id: "moptt",
         label: "MoPTT",
         url: "https://moptt.tw/p/Browsers.M.1750772319.A.F2C",
       },
       {
-        id: "pttweb",
-        label: "PTTweb",
-        url: "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C",
+        id: "nextptt",
+        label: "NextPTT",
+        url: "https://nextptt.app/boards/Browsers/post/M.1750772319.A.F2C",
       },
     ]);
   });

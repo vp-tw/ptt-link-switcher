@@ -5,6 +5,7 @@ export {
   generateProviderLinks,
   getProvider,
   mopttProvider,
+  nextpttProvider,
   officialProvider,
   providers,
   pttwebProvider,
