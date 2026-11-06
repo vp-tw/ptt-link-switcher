@@ -23,23 +23,34 @@ PTT Link Switcher 是純前端應用程式，也是無框架相依的 TypeScript
 | `packages/core` | 無框架相依的解析器、AID 轉換器與 provider adapters |
 | `apps/web`      | 部署至 GitHub Pages 的 Svelte 5 與 Vite+ 網頁      |
 
-## 環境需求
+## Development
 
-- Node.js 24.19.0
-- 透過 Corepack 使用 pnpm 11.21.0
-
-```sh
-corepack pnpm install
-corepack pnpm test
-corepack pnpm typecheck
-corepack pnpm build
-```
-
-在本機啟動網頁：
+Install [mise](https://mise.jdx.dev/getting-started.html), then install the project tools:
 
 ```sh
-corepack pnpm --filter @vp-tw/ptt-link-switcher-web dev
+mise install node pnpm
 ```
+
+mise reads Node.js 24.19.0 from `.node-version` and pnpm 11.21.0 from `package.json`.
+`mise.lock` records verified downloads for Linux x64 and macOS arm64. GitHub Actions
+uses these locked tools for validation, deployment, and releases.
+
+Run commands through mise without changing your shell configuration:
+
+```sh
+mise exec -- pnpm install --frozen-lockfile
+mise exec -- pnpm test
+mise exec -- pnpm typecheck
+mise exec -- pnpm build
+```
+
+Start the web app:
+
+```sh
+mise exec -- pnpm --filter @vp-tw/ptt-link-switcher-web dev
+```
+
+If mise is already activated in your shell, you can run `pnpm` directly.
 
 ## 函式庫用法
 
