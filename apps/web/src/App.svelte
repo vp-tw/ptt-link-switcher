@@ -16,7 +16,7 @@
     type DndEvent,
   } from 'svelte-dnd-action'
   import { flip } from 'svelte/animate'
-  import { onMount } from 'svelte'
+  import { onMount, tick } from 'svelte'
 
   import ProviderMark from './ProviderMark.svelte'
   import { preferences, resetPreferences, savePreferences, type Preferences } from './preferences.js'
@@ -36,7 +36,7 @@
   let result = $state<ParseResult | null>(null)
   let copiedProvider = $state<ProviderId | null>(null)
   let copyFailedProvider = $state<ProviderId | null>(null)
-  let copyFeedback = $state('')
+  let statusMessage = $state('')
   let preferenceState = $state<Preferences>(preferences.get())
   let showPwaUpdate = $state(pwaUpdateAvailable.get())
   let isMounted = $state(false)
@@ -150,7 +150,7 @@
     )
     copiedProvider = null
     copyFailedProvider = null
-    copyFeedback = ''
+    statusMessage = ''
     syncQuery()
   }
 
@@ -164,11 +164,11 @@
       await navigator.clipboard.writeText(link.url)
       copiedProvider = link.id
       copyFailedProvider = null
-      copyFeedback = `${link.label} 網址已複製。`
+      statusMessage = `${link.label} 網址已複製。`
     } catch {
       copiedProvider = null
       copyFailedProvider = link.id
-      copyFeedback = `${link.label} 網址複製失敗，請直接選取網址。`
+      statusMessage = `${link.label} 網址複製失敗，請直接選取網址。`
     }
     window.setTimeout(() => {
       if (copiedProvider === link.id) copiedProvider = null
@@ -181,7 +181,7 @@
     dndLinks = null
     copiedProvider = null
     copyFailedProvider = null
-    copyFeedback = '已重設閱讀站偏好。'
+    statusMessage = '已重設閱讀站偏好。'
   }
 
   function updateDefault(defaultProvider: ProviderId): void {
@@ -205,7 +205,32 @@
     savePreferences({ ...preferenceState, defaultProvider, hiddenProviders })
   }
 
-  function moveProvider(id: ProviderId, offset: -1 | 1): void {
+  function focusReaderWhenHidden(event: FocusEvent, control: HTMLElement): void {
+    if (event.relatedTarget !== null || control.getClientRects().length > 0) return
+    control.closest('.provider-ticket')?.querySelector<HTMLElement>('.reader-name')?.focus({ preventScroll: true })
+  }
+
+  async function finishProviderMove(
+    id: ProviderId,
+    orderedIds: readonly ProviderId[],
+    trigger: HTMLButtonElement,
+  ): Promise<void> {
+    const provider = providerById.get(id)
+    statusMessage = `${provider?.label ?? id} 已移至第 ${orderedIds.indexOf(id) + 1} 位，共 ${orderedIds.length} 站。`
+    await tick()
+    if (!trigger.isConnected) return
+    const focusTarget = trigger.disabled
+      ? trigger.closest('.provider-ticket, li')?.querySelector<HTMLElement>('.reader-name')
+      : trigger
+    focusTarget?.focus({ preventScroll: true })
+    focusTarget?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' })
+  }
+
+  async function moveProvider(
+    id: ProviderId,
+    offset: -1 | 1,
+    trigger: HTMLButtonElement,
+  ): Promise<void> {
     const currentIndex = preferenceState.providerOrder.indexOf(id)
     const nextIndex = currentIndex + offset
     if (currentIndex < 0 || nextIndex < 0 || nextIndex >= providers.length) return
@@ -215,9 +240,14 @@
       providerOrder[currentIndex]!,
     ]
     savePreferences({ ...preferenceState, providerOrder })
+    await finishProviderMove(id, providerOrder, trigger)
   }
 
-  function moveVisibleProvider(id: ProviderId, offset: -1 | 1): void {
+  async function moveVisibleProvider(
+    id: ProviderId,
+    offset: -1 | 1,
+    trigger: HTMLButtonElement,
+  ): Promise<void> {
     const visibleOrder = preferenceState.providerOrder.filter(
       (providerId) => !preferenceState.hiddenProviders.includes(providerId),
     )
@@ -233,6 +263,11 @@
       providerOrder[fullIndex]!,
     ]
     savePreferences({ ...preferenceState, providerOrder })
+    await finishProviderMove(
+      id,
+      providerOrder.filter((providerId) => !preferenceState.hiddenProviders.includes(providerId)),
+      trigger,
+    )
   }
 
   function mergeVisibleOrder(visibleOrder: ProviderId[]): ProviderId[] {
@@ -369,11 +404,11 @@
           <div class="settings-sheet">
             <p>選擇預設閱讀站、調整順序，或隱藏不常用的站。</p>
             <ol>
-              {#each preferenceState.providerOrder as id, index}
+              {#each preferenceState.providerOrder as id, index (id)}
                 {@const provider = providerById.get(id)}
                 {#if provider}
                   <li>
-                    <span>{provider.label}</span>
+                    <span class="reader-name" tabindex="-1">{provider.label}</span>
                     <label>
                       <input
                         type="radio"
@@ -398,16 +433,16 @@
                     <span class="order-buttons">
                       <button
                         type="button"
-                        aria-label={`將 ${provider.label} 往前移`}
+                        aria-label={`將 ${provider.label} 上移`}
                         disabled={index === 0}
-                        onclick={() => moveProvider(id, -1)}
-                      >↑</button>
+                        onclick={(event) => moveProvider(id, -1, event.currentTarget)}
+                      >上移</button>
                       <button
                         type="button"
-                        aria-label={`將 ${provider.label} 往後移`}
+                        aria-label={`將 ${provider.label} 下移`}
                         disabled={index === preferenceState.providerOrder.length - 1}
-                        onclick={() => moveProvider(id, 1)}
-                      >↓</button>
+                        onclick={(event) => moveProvider(id, 1, event.currentTarget)}
+                      >下移</button>
                     </span>
                   </li>
                 {/if}
@@ -442,7 +477,7 @@
             <div class="ticket-head">
               <ProviderMark id={link.id} />
               <div>
-                <h3>{link.label}</h3>
+                <h3 class="reader-name" tabindex="-1">{link.label}</h3>
                 {#if link.id === preferenceState.defaultProvider}
                   <span class="default-tag">預設閱讀站</span>
                 {/if}
@@ -450,6 +485,7 @@
               <span
                 aria-label={`拖曳以調整 ${link.label} 的順序`}
                 class="drag-handle"
+                onblur={(event) => focusReaderWhenHidden(event, event.currentTarget)}
                 use:dragHandle
               >
                 <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -481,18 +517,22 @@
               <button
                 type="button"
                 disabled={index === 0}
-                onclick={() => moveVisibleProvider(link.id, -1)}
-              >往前移</button>
+                aria-label={`將 ${link.label} 上移`}
+                onblur={(event) => focusReaderWhenHidden(event, event.currentTarget)}
+                onclick={(event) => moveVisibleProvider(link.id, -1, event.currentTarget)}
+              >上移</button>
               <button
                 type="button"
                 disabled={index === providerLinks.length - 1}
-                onclick={() => moveVisibleProvider(link.id, 1)}
-              >往後移</button>
+                aria-label={`將 ${link.label} 下移`}
+                onblur={(event) => focusReaderWhenHidden(event, event.currentTarget)}
+                onclick={(event) => moveVisibleProvider(link.id, 1, event.currentTarget)}
+              >下移</button>
             </div>
           </article>
         {/each}
       </div>
-      <p class="copy-status" role="status" aria-live="polite">{copyFeedback}</p>
+      <p class="interaction-status" role="status" aria-live="polite">{statusMessage}</p>
     </section>
   {:else}
     <section class="empty-route" aria-label="等待輸入">
