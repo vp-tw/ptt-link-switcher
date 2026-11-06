@@ -171,7 +171,7 @@
   }
 
   function useExample(): void {
-    input = 'https://www.ptt.cc/bbs/Browsers/M.1750772319.A.F2C.html'
+    input = 'https://www.ptt.cc/bbs/Gossiping/M.1771671779.A.6ED.html'
     board = ''
   }
 
