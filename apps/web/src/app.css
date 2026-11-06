@@ -453,8 +453,13 @@ textarea:focus {
   display: flex;
 }
 .order-buttons button {
-  width: 44px;
-  height: 44px;
+  padding: 0 4px;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-weight: 700;
+  min-width: 44px;
+  min-height: 44px;
+  flex: none;
   color: var(--ink);
   background: transparent;
   border: 1px solid var(--ink);
@@ -642,7 +647,7 @@ textarea:focus {
   display: none;
 }
 
-.copy-status {
+.interaction-status {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -929,4 +934,32 @@ footer > a svg {
     animation-delay: 0ms !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+.order-buttons button,
+.mobile-order button {
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  @media (hover: hover) {
+    &:not(:disabled):hover {
+      background: var(--acid);
+    }
+  }
+
+  &:not(:disabled):active {
+    background: var(--paper-deep);
+  }
+
+  &:not(:disabled):focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: -4px;
+    background: var(--acid);
+  }
+}
+
+.reader-name:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
 }
