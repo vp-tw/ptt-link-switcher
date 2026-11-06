@@ -34,21 +34,21 @@ Never use display type for URLs or identifiers. Keep display tracking above `-0.
 The content container is `min(1480px, calc(100% - 48px))`, reduced to `14px` side gutters on narrow screens.
 
 1. Compact identity header.
-2. Large editorial introduction.
+2. Compact editorial introduction.
 3. Full-width live-conversion manifest.
 4. Canonical route strip after parsing.
 5. Reader tickets ordered by preference.
 
 Reader tickets use up to four equal columns on wide screens, two columns below `940px`, and one complete vertical list below `720px`. The default reader is visibly marked, while the saved order remains authoritative. Do not replace the list with a carousel, horizontal scroller, or hidden overflow.
 
-Input changes update the canonical route and reader URLs after a short trailing debounce. The status panel communicates waiting, parsing, missing-board, error, and ready states without requiring form submission. Desktop tickets use a dedicated drag handle; narrow layouts expose explicit move controls instead of relying on touch drag gestures.
+Input changes update the canonical route and reader URLs after a short trailing debounce. The status panel communicates waiting, parsing, missing-board, error, and ready states without requiring form submission. Reader preferences can be reset from the settings disclosure; resetting removes only the repository-prefixed preference key. Desktop tickets use a dedicated drag handle; narrow layouts expose explicit move controls instead of relying on touch drag gestures.
 
 ## Component grammar
 
 - Use clipped or perforated ticket edges. Do not introduce generic rounded cards.
 - Use predominantly `2px` navy routing rules and restrained dashed separators.
 - Express depth through paper overlap and soft offset shadows. Do not use glass surfaces.
-- Keep Copy and Open as equal, explicit actions within every provider ticket.
+- Keep the full, selectable URL on one line with explicit Copy and Open actions directly to its right. Tickets grow with content rather than reserving empty space.
 - Keep the direct GitHub repository link visible in the footer.
 - Present ready PWA updates as a compact routing notice with explicit Later and Update actions.
 - Use native form controls, buttons, links, and disclosure behavior.

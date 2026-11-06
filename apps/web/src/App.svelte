@@ -19,7 +19,7 @@
   import { onMount } from 'svelte'
 
   import ProviderMark from './ProviderMark.svelte'
-  import { preferences, savePreferences, type Preferences } from './preferences.js'
+  import { preferences, resetPreferences, savePreferences, type Preferences } from './preferences.js'
   import {
     dismissPwaUpdate,
     pwaUpdateAvailable,
@@ -130,7 +130,7 @@
       case 'missing_board':
         return '完整 AID 不含看板資料；補上看板名稱即可離線轉換。'
       case 'unsupported_provider':
-        return `目前不支援 ${error.host}，請改貼 PTT 官方、BePTT、MoPTT 或 PTTweb 網址。`
+        return `目前不支援 ${error.host}，請改貼支援的閱讀站網址：${providerLabels}。`
       case 'unrecognized_input':
         return '找不到可辨識的 PTT 文章網址或完整 AID。'
     }
@@ -174,6 +174,14 @@
       if (copiedProvider === link.id) copiedProvider = null
       if (copyFailedProvider === link.id) copyFailedProvider = null
     }, 1800)
+  }
+
+  function resetReaderPreferences(): void {
+    resetPreferences()
+    dndLinks = null
+    copiedProvider = null
+    copyFailedProvider = null
+    copyFeedback = '已重設閱讀站偏好。'
   }
 
   function updateDefault(defaultProvider: ProviderId): void {
@@ -280,7 +288,6 @@
   <section class="manifest" aria-labelledby="manifest-title">
     <div class="manifest-heading">
       <h2 id="manifest-title">文章轉乘單</h2>
-      <span>ROUTE / 001</span>
     </div>
     <div class="converter-fields">
       <label for="ptt-input">文章網址、分享文字或完整 AID</label>
@@ -289,34 +296,29 @@
           id="ptt-input"
           bind:value={input}
           placeholder="例如 https://www.ptt.cc/bbs/... 或 #1eMgfVyi"
-          rows="3"
+          rows="2"
           spellcheck="false"
         ></textarea>
         <div class:parsing={isParsing} class="conversion-status" role="status" aria-live="polite">
           {#if isParsing}
-            <span>正在更新</span>
             <strong>辨識路線中</strong>
           {:else if article !== null}
-            <span>ROUTE READY</span>
             <strong>網址已轉換</strong>
             {#if defaultLink}
               <a href={defaultLink.url} target="_blank" rel="noreferrer">開啟預設閱讀站</a>
             {/if}
           {:else if missingBoard}
-            <span>BOARD NEEDED</span>
             <strong>需要看板名稱</strong>
           {:else if result?.ok === false}
-            <span>CHECK INPUT</span>
             <strong>尚未辨識</strong>
           {:else}
-            <span>LIVE CONVERSION</span>
             <strong>輸入即時更新</strong>
           {/if}
         </div>
       </div>
       <div class="input-meta">
         <button class="text-button" type="button" onclick={useExample}>填入範例</button>
-        <span>支援 {providerLabels}</span>
+        {#if article === null}<span>支援 {providerLabels}</span>{/if}
       </div>
 
       {#if missingBoard}
@@ -411,6 +413,9 @@
                 {/if}
               {/each}
             </ol>
+            <button class="reset-preferences" type="button" onclick={resetReaderPreferences}>
+              重設閱讀站偏好
+            </button>
           </div>
         </details>
       </div>
@@ -437,12 +442,11 @@
             <div class="ticket-head">
               <ProviderMark id={link.id} />
               <div>
-                <span>READ VIA</span>
                 <h3>{link.label}</h3>
+                {#if link.id === preferenceState.defaultProvider}
+                  <span class="default-tag">預設閱讀站</span>
+                {/if}
               </div>
-              {#if link.id === preferenceState.defaultProvider}
-                <span class="default-tag">預設閱讀站</span>
-              {/if}
               <span
                 aria-label={`拖曳以調整 ${link.label} 的順序`}
                 class="drag-handle"
@@ -453,14 +457,20 @@
                 </svg>
               </span>
             </div>
-            <p class="provider-url">{link.url}</p>
             <div class="ticket-actions">
-              <button type="button" onclick={() => copyLink(link)}>
+              <input
+                class="provider-url"
+                aria-label={`${link.label} 文章網址`}
+                value={link.url}
+                readonly
+                spellcheck="false"
+              />
+              <button type="button" aria-label={`複製 ${link.label} 網址`} onclick={() => copyLink(link)}>
                 {copiedProvider === link.id
                   ? '已複製'
                   : copyFailedProvider === link.id
                     ? '複製失敗'
-                    : '複製網址'}
+                    : '複製'}
               </button>
               <a href={link.url} target="_blank" rel="noreferrer">
                 開啟
