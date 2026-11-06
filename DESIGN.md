@@ -53,7 +53,7 @@ Input changes update the canonical route and reader URLs after a short trailing 
 - Present ready PWA updates as a compact routing notice with explicit Later and Update actions.
 - Use native form controls, buttons, links, and disclosure behavior.
 
-Paper surfaces use the bundled `/paper-texture.webp`. Provider marks and routing glyphs are authored SVG geometry bundled with the app. Do not add remote visual dependencies.
+Paper surfaces use the bundled `/paper-texture.webp`. Provider marks use official artwork in a fixed 42px square with preserved aspect ratio: BePTT is bundled and the other four load directly from their published URLs. Remote image failures show the original bundled SVG marks. Routing glyphs remain authored SVG geometry. See [provider icon sources and behavior](docs/provider-icons.md).
 
 ## Motion
 
