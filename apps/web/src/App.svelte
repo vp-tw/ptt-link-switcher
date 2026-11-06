@@ -13,6 +13,8 @@
     dragHandle,
     dragHandleZone,
     setAriaStrings,
+    SOURCES,
+    TRIGGERS,
     type DndEvent,
   } from 'svelte-dnd-action'
   import { flip } from 'svelte/animate'
@@ -278,7 +280,19 @@
     )
   }
 
-  function previewProviderOrder(event: CustomEvent<DndEvent>): void {
+  async function previewProviderOrder(event: CustomEvent<DndEvent>): Promise<void> {
+    if (
+      event.detail.info.source === SOURCES.KEYBOARD &&
+      event.detail.info.trigger === TRIGGERS.DRAG_STOPPED
+    ) {
+      dndLinks = null
+      const zone = event.currentTarget
+      if (!(zone instanceof HTMLElement)) return
+      await tick()
+      const index = providerLinks.findIndex((link) => link.id === event.detail.info.id)
+      zone.children[index]?.querySelector<HTMLElement>('.reader-name')?.focus({ preventScroll: true })
+      return
+    }
     dndLinks = event.detail.items as ProviderDndLink[]
   }
 
