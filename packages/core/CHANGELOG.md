@@ -1,5 +1,11 @@
 # @vp-tw/ptt-link-switcher
 
+## 0.2.1
+
+### Patch Changes
+
+- 70d8ad7: Update the package README with the Gossiping example, matching AID, and verified ESM and TypeScript consumer setup.
+
 ## 0.2.0
 
 ### Minor Changes
