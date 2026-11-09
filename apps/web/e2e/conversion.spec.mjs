@@ -6,6 +6,7 @@ import { preview } from "vite-plus";
 
 const appRoot = fileURLToPath(new URL("../", import.meta.url));
 const article = "https://www.ptt.cc/bbs/Gossiping/M.1771671779.A.6ED.html";
+const bepttArticle = "https://bbs.beptt.tw/Gossiping/M.1771671779.A.6ED";
 const inputLabel = "文章網址、分享文字或完整 AID";
 const settingsLabel = "排列與顯示設定";
 
@@ -93,9 +94,17 @@ test("reopens the conversion offline and waits for consent before applying an up
   });
   await page.reload();
   await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+  await page.getByText(settingsLabel).click();
+  await page.getByRole("listitem", { name: "BePTT 排序設定" }).getByRole("radio").check();
+  const defaultReader = page.getByRole("link", { name: "開啟預設閱讀站" });
+  await expect(defaultReader).toHaveAttribute("href", bepttArticle);
+
   await context.setOffline(true);
   await page.reload();
   await expect(page.getByRole("textbox", { name: "PTT 官方 文章網址" })).toHaveValue(article);
+  await expect(defaultReader).toHaveAttribute("href", bepttArticle);
+  const officialTicket = page.getByRole("article", { name: "PTT 官方 閱讀站" });
+  await expect(officialTicket.locator("svg.provider-mark")).toBeVisible();
   await context.setOffline(false);
 
   production.publishUpdate();
@@ -113,6 +122,7 @@ test("reopens the conversion offline and waits for consent before applying an up
   await Promise.all([page.waitForEvent("framenavigated"), update.click()]);
   await expect(update).toBeHidden();
   await expect(page.getByRole("textbox", { name: "PTT 官方 文章網址" })).toHaveValue(article);
+  await expect(defaultReader).toHaveAttribute("href", bepttArticle);
   expect(await page.evaluate(async () => !!(await navigator.serviceWorker.ready).waiting)).toBe(
     false,
   );
