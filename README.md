@@ -52,6 +52,19 @@ mise exec -- pnpm --filter @vp-tw/ptt-link-switcher-web dev
 
 If mise is already activated in your shell, you can run `pnpm` directly.
 
+Run browser checks against the production build:
+
+```sh
+mise exec -- pnpm build
+mise exec -- pnpm exec playwright install --only-shell chromium
+mise exec -- pnpm test:browser
+```
+
+The browser suite checks link conversion, clipboard access, saved reader order,
+touch controls, offline reload, and the update prompt. See the
+[physical-device checklist](docs/pwa-device-checklist.md) for installation and
+standalone-mode checks.
+
 ## 函式庫用法
 
 ```ts
