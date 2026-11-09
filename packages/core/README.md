@@ -2,6 +2,10 @@
 
 Parse and convert PTT article links across supported readers—entirely offline.
 
+Install with `npm install @vp-tw/ptt-link-switcher`. The package exposes an ESM
+entry point and TypeScript declarations. Release checks exercise Node.js 24 and
+TypeScript 6 with NodeNext module resolution.
+
 ```ts
 import { generateProviderLinks, parsePttInput } from "@vp-tw/ptt-link-switcher";
 

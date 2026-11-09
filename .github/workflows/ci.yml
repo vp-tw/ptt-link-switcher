@@ -26,6 +26,7 @@ jobs:
       - run: pnpm exec playwright install --with-deps --only-shell chromium
       - run: pnpm test:browser
       - run: pnpm --filter @vp-tw/ptt-link-switcher pack --pack-destination package-artifacts
+      - run: node scripts/check-package.mjs package-artifacts/*.tgz
       - uses: actions/upload-artifact@v7
         with:
           name: npm-package
