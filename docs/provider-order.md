@@ -32,3 +32,31 @@ curl -L --max-time 20 -o /dev/null -w '%{http_code} %{content_type}\n' 'https://
 ```
 
 Recheck multiple articles, including articles with and without images, and desktop/mobile layouts before changing the default order. Actual platform compatibility requires observing each platform's rendered card separately; metadata inspection alone is insufficient. These checks are development research and do not add network access to the offline converter.
+
+## Release compatibility check
+
+Paste one ordinary-board article and one restricted-board article into the
+deployed converter. Open all five generated links in a fresh desktop browser
+profile. Compare the board, article ID, and title, and record whether each
+reader displays the article, redirects to another reader, requests age
+confirmation, reports a missing mirror, or blocks access. Inspect the redirect
+target or confirmation page's return path before classifying a redirect as a
+broken adapter. A mirror can retain an older title, so compare the article ID
+and body before concluding that it points to a different post.
+
+On November 9, 2026 (Asia/Taipei), Chromium checked the
+[Stock sample](https://www.ptt.cc/bbs/Stock/M.1793932432.A.A03.html) and the
+[Gossiping board-rules sample](https://www.ptt.cc/bbs/Gossiping/M.1771671779.A.6ED.html).
+
+| Reader       | Stock sample                             | Gossiping sample                                     |
+| ------------ | ---------------------------------------- | ---------------------------------------------------- |
+| Official PTT | Opened the article                       | Age confirmation with the article as the return path |
+| BePTT        | Matching landing page, then Official PTT | Matching landing page, then Official PTT's age gate  |
+| PTTweb       | Opened the article                       | Opened the article                                   |
+| MoPTT        | Opened the article                       | Opened the article                                   |
+| NextPTT      | Opened the article route                 | Opened the article route                             |
+
+These observations cover the two sample articles and Chromium's desktop flow.
+Reader availability and mirror coverage vary. Keep this check outside the
+converter so conversion works offline and CI remains independent of reader
+uptime.
