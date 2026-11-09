@@ -16,6 +16,15 @@ PTT Link Switcher 是純前端應用程式，也是無框架相依的 TypeScript
 - 核心轉換全程離線，不使用 DOM、fetch 或儲存空間。
 - 網頁會保留閱讀站順序、顯示狀態與預設閱讀站。
 
+## 安裝為桌面應用程式
+
+開啟 [PTT Link Switcher](https://vp-tw.github.io/ptt-link-switcher/) 後，從瀏覽器安裝：
+
+- Chrome 或 Edge：使用網址列的安裝圖示，或在瀏覽器選單中選擇安裝此網站。
+- Safari（macOS Sonoma 14 以上）：從「檔案」選單選擇「加入 Dock」。
+
+安裝後先連線開啟一次，讓瀏覽器快取網頁。之後可離線轉換連結，開啟閱讀站仍需網路。
+
 ## 工作區
 
 | 路徑            | 用途                                               |
@@ -62,7 +71,7 @@ mise exec -- pnpm test:browser
 
 The browser suite checks link conversion, clipboard access, saved reader order,
 touch controls, offline reload, and the update prompt. See the
-[physical-device checklist](docs/pwa-device-checklist.md) for installation and
+[PWA acceptance checklist](docs/pwa-device-checklist.md) for installation and
 standalone-mode checks.
 
 ## 函式庫用法
