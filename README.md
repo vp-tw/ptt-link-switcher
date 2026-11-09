@@ -71,8 +71,8 @@ mise exec -- pnpm test:browser
 
 The browser suite checks link conversion, clipboard access, saved reader order,
 touch controls, offline reload, and the update prompt. See the
-[PWA acceptance checklist](docs/pwa-device-checklist.md) for installation and
-standalone-mode checks.
+[mobile PWA acceptance checklist](docs/pwa-device-checklist.md) for the three
+installed-app paths tested on physical phones.
 
 ## 函式庫用法
 

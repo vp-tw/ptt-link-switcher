@@ -1,22 +1,22 @@
-# PWA acceptance checklist
+# Mobile PWA acceptance checklist
 
-Run the steps on desktop Chrome and Edge, Safari on macOS Sonoma 14 or later,
-and physical devices with iOS Safari and Android Chrome. Record the date,
-device, OS, browser version, and deployed revision. The Chromium suite covers
-offline reload and the update prompt in a browser. Use the installed app to
-verify launch from the operating system.
+Run these three paths on physical iPhones with Safari and Android phones with
+Chrome. Record the date, device, OS, browser version, build revision, and the
+outcome of each path.
 
-1. Open the published app in a fresh browser profile. Use the desktop
-   browser's install command, Safari's Add to Dock or Add to Home Screen
-   command, or Android Chrome's Install App entry. Launch the app from its
-   operating system icon.
-2. Convert the built-in example. Copy a reader URL, paste it into a local
-   text field, and check that it matches the reader's displayed URL. Reorder
-   a reader with the move buttons and change the default.
-3. After an online reload, disconnect the device and close and relaunch the
-   installed app. Convert the built-in example again. Confirm that the
-   preference changes survived and that reader logos have offline fallbacks.
-4. With the old build still open, reconnect and deploy a new build to the
-   test origin. Reopen the app online to check for an update. Choose Later,
-   verify the current conversion remains usable, then reopen and accept the
-   update. Confirm the new build loads and preferences survive.
+1. **Launch from the home screen.** Install the app while online, then open it
+   from the home screen icon. Fill in the built-in example and verify that the
+   installed app displays the reader links.
+2. **Cold launch offline.** Open the installed app online once to let it cache
+   its assets. Close the app completely, disconnect the phone, then reopen it
+   from the home screen icon. Fill in the example and verify that the reader
+   links appear.
+3. **Update an installed build.** Install a test build, then deploy a
+   distinguishable newer build to the same test URL. Reopen the installed app
+   online and record when the update prompt appears. Choose Later and verify
+   the current build still works. Reopen the app, accept the update, and verify
+   that it loads the newer build and still converts the example.
+
+The [Chromium browser suite](../apps/web/e2e/conversion.spec.mjs) covers clipboard
+copying, keyboard and touch ordering, reader preferences, icon fallback,
+offline reload, and the update prompt's Later and Update actions.
