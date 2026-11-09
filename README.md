@@ -8,7 +8,7 @@ PTT Link Switcher 是純前端應用程式，也是無框架相依的 TypeScript
 
 - 解析 PTT 官方、BePTT、PTTweb、MoPTT 與 NextPTT 的文章網址。
 - 從分享文字擷取支援的網址。
-- 轉換 `#1eMgfVyi` 等完整 AID；若輸入未包含看板，需另外提供看板名稱。
+- 轉換 `#1fcP3ZRj` 等完整 AID；若輸入未包含看板，需另外提供看板名稱。
 - 透過宣告式 provider adapter（閱讀站轉接器）產生各閱讀站網址。
 - 輸入停止片刻後自動更新轉換結果。
 - 可安裝為離線 PWA，並在套用新版前詢問使用者。
@@ -57,7 +57,7 @@ If mise is already activated in your shell, you can run `pnpm` directly.
 ```ts
 import { generateProviderLinks, parsePttInput } from "@vp-tw/ptt-link-switcher";
 
-const result = parsePttInput("https://www.ptt.cc/bbs/Browsers/M.1750772319.A.F2C.html");
+const result = parsePttInput("https://www.ptt.cc/bbs/Gossiping/M.1771671779.A.6ED.html");
 
 if (result.ok) {
   console.log(result.article);
@@ -73,27 +73,27 @@ if (result.ok) {
   {
     "id": "official",
     "label": "PTT 官方",
-    "url": "https://www.ptt.cc/bbs/Browsers/M.1750772319.A.F2C.html"
+    "url": "https://www.ptt.cc/bbs/Gossiping/M.1771671779.A.6ED.html"
   },
   {
     "id": "beptt",
     "label": "BePTT",
-    "url": "https://bbs.beptt.tw/Browsers/M.1750772319.A.F2C"
+    "url": "https://bbs.beptt.tw/Gossiping/M.1771671779.A.6ED"
   },
   {
     "id": "pttweb",
     "label": "PTTweb",
-    "url": "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C"
+    "url": "https://www.pttweb.cc/bbs/Gossiping/M.1771671779.A.6ED"
   },
   {
     "id": "moptt",
     "label": "MoPTT",
-    "url": "https://moptt.tw/p/Browsers.M.1750772319.A.F2C"
+    "url": "https://moptt.tw/p/Gossiping.M.1771671779.A.6ED"
   },
   {
     "id": "nextptt",
     "label": "NextPTT",
-    "url": "https://nextptt.app/boards/Browsers/post/M.1750772319.A.F2C"
+    "url": "https://nextptt.app/boards/Gossiping/post/M.1771671779.A.6ED"
   }
 ]
 ```
@@ -101,12 +101,12 @@ if (result.ok) {
 完整 AID 不包含看板名稱，因此離線轉換時必須明確提供：
 
 ```ts
-parsePttInput("#1eMgfVyi", { board: "Browsers" });
+parsePttInput("#1fcP3ZRj", { board: "Gossiping" });
 ```
 
 ## 隱私邊界
 
-核心套件只執行可預期的字串轉換，不依賴 DOM、網路或儲存空間。網頁會將閱讀站偏好儲存在本機，並透過 URL query string 保存目前輸入。文章中繼資料不在這個 POC 的範圍內。
+核心套件只執行可預期的字串轉換，不依賴 DOM、網路或儲存空間。網頁會將閱讀站偏好儲存在本機，並透過 URL query string 保存目前輸入。轉換僅處理文章識別資訊與網址，不會查詢文章標題或內容，也不會檢查各閱讀站是否收錄該篇文章。
 
 ## 發布流程
 
