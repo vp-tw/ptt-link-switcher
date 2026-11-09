@@ -5,7 +5,7 @@ Parse and convert PTT article links across supported readers—entirely offline.
 ```ts
 import { generateProviderLinks, parsePttInput } from "@vp-tw/ptt-link-switcher";
 
-const result = parsePttInput("#1eMgfVyi", { board: "Browsers" });
+const result = parsePttInput("#1fcP3ZRj", { board: "Gossiping" });
 
 if (result.ok) {
   const links = generateProviderLinks(result.article);
@@ -20,27 +20,27 @@ if (result.ok) {
   {
     "id": "official",
     "label": "PTT 官方",
-    "url": "https://www.ptt.cc/bbs/Browsers/M.1750772319.A.F2C.html"
+    "url": "https://www.ptt.cc/bbs/Gossiping/M.1771671779.A.6ED.html"
   },
   {
     "id": "beptt",
     "label": "BePTT",
-    "url": "https://bbs.beptt.tw/Browsers/M.1750772319.A.F2C"
+    "url": "https://bbs.beptt.tw/Gossiping/M.1771671779.A.6ED"
   },
   {
     "id": "pttweb",
     "label": "PTTweb",
-    "url": "https://www.pttweb.cc/bbs/Browsers/M.1750772319.A.F2C"
+    "url": "https://www.pttweb.cc/bbs/Gossiping/M.1771671779.A.6ED"
   },
   {
     "id": "moptt",
     "label": "MoPTT",
-    "url": "https://moptt.tw/p/Browsers.M.1750772319.A.F2C"
+    "url": "https://moptt.tw/p/Gossiping.M.1771671779.A.6ED"
   },
   {
     "id": "nextptt",
     "label": "NextPTT",
-    "url": "https://nextptt.app/boards/Browsers/post/M.1750772319.A.F2C"
+    "url": "https://nextptt.app/boards/Gossiping/post/M.1771671779.A.6ED"
   }
 ]
 ```
