@@ -10,11 +10,13 @@
     "pack": "vp pack",
     "release": "pnpm build && changeset publish",
     "test": "vp test --run",
+    "test:browser": "playwright test apps/web/e2e --workers=1",
     "typecheck": "pnpm -r typecheck",
     "version": "changeset version && pnpm install --lockfile-only"
   },
   "devDependencies": {
     "@changesets/cli": "3.0.0",
+    "@playwright/test": "1.65.0",
     "@sveltejs/vite-plugin-svelte": "7.3.0",
     "@typescript/native": "npm:typescript@7.0.2",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",

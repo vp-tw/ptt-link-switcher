@@ -23,6 +23,8 @@ jobs:
       - run: pnpm test
       - run: pnpm typecheck
       - run: pnpm build
+      - run: pnpm exec playwright install --with-deps --only-shell chromium
+      - run: pnpm test:browser
       - run: pnpm --filter @vp-tw/ptt-link-switcher pack --pack-destination package-artifacts
       - uses: actions/upload-artifact@v7
         with:
