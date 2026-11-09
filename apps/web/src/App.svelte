@@ -534,7 +534,6 @@
 
 <footer>
   <p>
-    Offline by design ·
     <a href="https://github.com/vp-tw/ptt-link-switcher/blob/main/LICENSE" target="_blank" rel="noreferrer">MIT License</a>
   </p>
   <a href="https://github.com/vp-tw/ptt-link-switcher" target="_blank" rel="noreferrer">
