@@ -2,6 +2,7 @@
   import {
     articleIdToAid,
     generateProviderLinks,
+    officialProvider,
     parsePttInput,
     providers,
     type ParseError,
@@ -107,7 +108,7 @@
     if (pendingInput.trim().length === 0) {
       result = null
       isParsing = false
-      syncQuery()
+      syncQuery(null)
       return
     }
 
@@ -152,11 +153,12 @@
     }
   }
 
-  function syncQuery(): void {
+  function syncQuery(conversion: ParseResult | null): void {
     const url = new URL(window.location.href)
-    if (input.trim().length === 0) url.searchParams.delete('input')
-    else url.searchParams.set('input', input.trim())
-    history.replaceState(null, '', url)
+    const articleUrl = conversion?.ok ? officialProvider.toUrl(conversion.article) : null
+    if (articleUrl === null) url.searchParams.delete('input')
+    else url.searchParams.set('input', articleUrl)
+    if (url.href !== window.location.href) history.replaceState(history.state, '', url)
   }
 
   function parse(pendingInput = input, pendingBoard = board): void {
@@ -167,7 +169,7 @@
     copiedProvider = null
     copyFailedProvider = null
     statusMessage = ''
-    syncQuery()
+    syncQuery(result)
   }
 
   function useExample(): void {
